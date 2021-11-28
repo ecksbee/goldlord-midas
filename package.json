@@ -1,0 +1,46 @@
+{
+  "name": "goldlord-midas",
+  "description": "Once king of roses, now lord of gold / Blessed with the gift of gilded touch",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --hot --inline",
+    "build": "webpack -p --config webpack.config.prod.js",
+    "lint": "eslint src/**",
+    "lint-fix": "eslint --fix src/**"
+  },
+  "author": "Joshua Nario",
+  "dependencies": {
+    "@fluentui/web-components": "^2.1.0",
+    "canvas-datagrid": "^0.3.19",
+    "d3": "^7.1.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "compression-webpack-plugin": "^1.1.11",
+    "css-loader": "^1.0.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-import-resolver-webpack": "^0.9.0",
+    "eslint-loader": "^2.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "file-loader": "^1.1.11",
+    "mini-css-extract-plugin": "^0.4.4",
+    "node-sass": "^4.10.0",
+    "prettier": "^1.15.1",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^1.2.5",
+    "webpack": "^3.11.0",
+    "webpack-dev-server": "^2.11.2"
+  }
+}
