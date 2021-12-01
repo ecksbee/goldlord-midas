@@ -2,6 +2,7 @@
   "name": "goldlord-midas",
   "description": "Once king of roses, now lord of gold / Blessed with the gift of gilded touch",
   "version": "0.0.0",
+  "license": "see LICENSE file",
   "private": true,
   "main": "index.js",
   "scripts": {
