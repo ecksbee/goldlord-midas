@@ -1,9 +1,9 @@
 export default () => {
-    const topPanel = document.getElementById('top-panel')
-    if (!topPanel) {
+    const selectorPanel = document.getElementById('selector-panel')
+    if (!selectorPanel) {
         return
     }
-    topPanel.innerHTML = `<h1>Entity</h1>
+    selectorPanel.innerHTML = `<h1>Entity</h1>
     <fluent-combobox>
       <fluent-option value="1">GOOG</fluent-option>
       <fluent-option value="2">fb</fluent-option>
