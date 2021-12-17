@@ -6,6 +6,13 @@ export default {
                 "Scheme": "http://www.sec.gov/CIK",
                 "CharData": "0001445305"
             }
+        },
+        {
+            "Name": "JOHNLEECORP",
+            "Entity": {
+                "Scheme": "http://www.sec.gov/CIK",
+                "CharData": "0001445306"
+            }
         }
     ],
     "RelationshipSets": [
