@@ -9,6 +9,7 @@ import testDataCatalog from '../test/selectorPanel/testDataCatalog'
 import './global.scss'
 const selectorPanel = document.createElement('div')
 selectorPanel.setAttribute('id', 'selector-panel')
+selectorPanel.classList.add('bigPanel')
 const mainPanel = document.createElement('div')
 mainPanel.setAttribute('id', 'main-panel')
 document.body.appendChild(selectorPanel)

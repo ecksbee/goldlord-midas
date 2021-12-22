@@ -1,3 +1,8 @@
+// function fetcher (e) {
+//     alert('hello')
+//     return null
+// }
+
 const catalogToSubjectDataString = catalog => {
     let subjectDataString = ``
     for (let i = 0; i < catalog.Subjects.length; i++) {
@@ -7,7 +12,9 @@ const catalogToSubjectDataString = catalog => {
             `/` +
             catalog.Subjects[i].Entity.CharData +
             `">` +
-            catalog.Subjects[i].Name +
+            catalog.Subjects[i].Entity.Scheme +
+            `/` +
+            catalog.Subjects[i].Entity.CharData +
             `</fluent-option>`
     }
     return subjectDataString
@@ -19,7 +26,7 @@ const catalogToRelationshipSetDataString = catalog => {
             `<fluent-option value="` +
             catalog.RelationshipSets[i].RoleURI +
             `">` +
-            catalog.RelationshipSets[i].Title +
+            catalog.RelationshipSets[i].RoleURI +
             `</fluent-option>`
     }
     return relationshipSetDataString
@@ -38,13 +45,15 @@ export default catalog => {
     selectorPanel.innerHTML =
         `<h1>Concept Network Browser</h1>
     <h2>Entity</h2>
-    <fluent-combobox>` +
+    <fluent-combobox class="comboBoxes">` +
         subjectDataString +
         `
     </fluent-combobox>
     <h2>Relationship Set</h2>
-    <fluent-combobox>` +
+    <fluent-combobox class="comboBoxes">` +
         relationshipSetDataString +
         `
-    </fluent-combobox>`
+    </fluent-combobox>
+    </br>
+    <button onclick="fetcher()">Browse</button>`
 }
