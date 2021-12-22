@@ -45,12 +45,12 @@ export default catalog => {
     selectorPanel.innerHTML =
         `<h1>Concept Network Browser</h1>
     <h2>Entity</h2>
-    <fluent-combobox class="comboBoxes">` +
+    <fluent-combobox class="combo-boxes">` +
         subjectDataString +
         `
     </fluent-combobox>
     <h2>Relationship Set</h2>
-    <fluent-combobox class="comboBoxes">` +
+    <fluent-combobox class="combo-boxes">` +
         relationshipSetDataString +
         `
     </fluent-combobox>
