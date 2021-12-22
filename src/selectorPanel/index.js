@@ -1,8 +1,3 @@
-// function fetcher (e) {
-//     alert('hello')
-//     return null
-// }
-
 const catalogToSubjectDataString = catalog => {
     let subjectDataString = ``
     for (let i = 0; i < catalog.Subjects.length; i++) {
@@ -45,15 +40,23 @@ export default catalog => {
     selectorPanel.innerHTML =
         `<h1>Concept Network Browser</h1>
     <h2>Entity</h2>
-    <fluent-combobox class="combo-boxes">` +
+    <fluent-combobox id="subjectSelectize" class="combo-boxes" current-value="` +
+        catalog.Subjects[0].Entity.Scheme +
+        `/` +
+        catalog.Subjects[0].Entity.CharData +
+        `">
+    ` +
         subjectDataString +
         `
     </fluent-combobox>
     <h2>Relationship Set</h2>
-    <fluent-combobox class="combo-boxes">` +
+    <fluent-combobox id="relationshipSetSelectize" class="combo-boxes" current-value="` +
+        catalog.RelationshipSets[0].RoleURI +
+        `">` +
         relationshipSetDataString +
         `
     </fluent-combobox>
     </br>
-    <button onclick="fetcher()">Browse</button>`
+    <button id="fetch-button" >Browse</button>`
 }
+// reminder: gotta use the addEventListener method. https://www.w3schools.com/jsref/met_document_addeventlistener.asp
