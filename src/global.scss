@@ -20,9 +20,16 @@ body {
   width: 40%;
 }
 #main-panel{
-  width: 100vw;
-  height: 100vh;
+  width: 95vw;
+  height: 95vh;
 }
 
 #rViewer{
+}
+
+.truncate {
+  width: 95vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

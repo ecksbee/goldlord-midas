@@ -59,4 +59,3 @@ export default catalog => {
     </br>
     <button id="fetch-button" >Browse</button>`
 }
-// reminder: gotta use the addEventListener method. https://www.w3schools.com/jsref/met_document_addeventlistener.asp

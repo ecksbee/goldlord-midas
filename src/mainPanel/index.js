@@ -3,13 +3,13 @@ import renderPGridViewer from './presentationViewer/pGridViewer'
 import testDataPGrid from '../../test/mainPanel/presentationViewer/testDataPGrid'
 // import testDataArc from '../../test/mainPanel/definitionViewer/testDataArcDiagram'
 
-export default () => {
+export default title => {
     const mainPanel = document.getElementById('main-panel')
     if (!mainPanel) {
         return
     }
     const mainTitleBar = document.createElement('div')
-    mainTitleBar.innerHTML = `<h1>00010101 Title</h1>`
+    mainTitleBar.innerHTML = `<h1 class='truncate'>` + title + `</h1>`
     mainPanel.appendChild(mainTitleBar)
     const mainPanelTabs = document.createElement('div')
     mainPanelTabs.innerHTML = `<fluent-tabs activeid="entrees">
@@ -41,7 +41,7 @@ export default () => {
     const rViewer = document.createElement('div')
     presentationPanel.appendChild(rViewer)
     rViewer.setAttribute('id', 'r-viewer')
-    //mainPanel.appendChild(rViewer)
+    // mainPanel.appendChild(rViewer)
     renderPGridViewer(testDataPGrid)
     // renderArcDiagram(testDataArc)
 }
