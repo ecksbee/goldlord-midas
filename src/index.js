@@ -45,6 +45,7 @@ document.getElementById('fetch-button').addEventListener('click', () => {
     let relationshipSetsLen = testDataCatalog.RelationshipSets.length
     let checkedURI = ''
     let mainPanelTitle = ''
+    // todo: turn this into a "foreach" loop for better performance.
     for (let i = 0; i < relationshipSetsLen; i++) {
         checkedURI = testDataCatalog.RelationshipSets[i].RoleURI
         if (checkedURI === b) {
@@ -55,6 +56,7 @@ document.getElementById('fetch-button').addEventListener('click', () => {
 
     let subjectsLen = testDataCatalog.Subjects.length
     let checkedEntity = ''
+    // todo: turn this into a "foreach" loop for better performance.
     for (let i = 0; i < subjectsLen; i++) {
         checkedEntity =
             testDataCatalog.Subjects[i].Entity.Scheme +
