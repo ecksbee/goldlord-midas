@@ -15,9 +15,12 @@ export default title => {
     mainPanel.appendChild(mainTitleBar)
     const mainPanelTabs = document.createElement('div')
     mainPanelTabs.innerHTML = `<fluent-tabs activeid="entrees">
+    <fluent-tab id="test">Test</fluent-tab>
     <fluent-tab id="presentation">Presentation</fluent-tab>
     <fluent-tab id="definition">Definition</fluent-tab>
     <fluent-tab id="calculation">Calculation</fluent-tab>
+    <fluent-tab-panel id="testTab">
+    </fluent-tab-panel>
     <fluent-tab-panel id="presentationPanel">
     </fluent-tab-panel>
     <fluent-tab-panel id="definitionPanel">
@@ -37,12 +40,16 @@ export default title => {
     presentationPanel.appendChild(rViewer)
     rViewer.setAttribute('id', 'r-viewer')
     // mainPanel.appendChild(rViewer)
-    // renderPGridViewer(testDataPGrid)
+    renderPGridViewer(testDataPGrid)
 
-    const definitionPanel = document.getElementById('definitionPanel')
-    const rViewerDefinition = document.createElement('div')
-    definitionPanel.appendChild(rViewerDefinition)
-    rViewerDefinition.setAttribute('id', 'r-viewerDefinition')
-    renderRootDomain(testDataRootDomain)
+    // renderRootDomain(testDataRootDomain)
     // renderArcDiagram(testDataArc)
+    document.getElementById('definition').addEventListener('click', e => {
+        alert('hi3')
+        const definitionPanel = document.getElementById('definitionPanel')
+        const rViewerDefinition = document.createElement('div')
+        definitionPanel.appendChild(rViewerDefinition)
+        rViewerDefinition.setAttribute('id', 'r-viewerDefinition')
+        renderRootDomain(testDataRootDomain)
+    })
 }
