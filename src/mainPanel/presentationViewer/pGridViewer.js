@@ -1,3 +1,5 @@
+// also used in rootDomainViewer.js
+
 import canvasDatagrid from 'canvas-datagrid'
 import transformPGrid from './transformPGrid'
 

@@ -1,6 +1,8 @@
 import renderPGridViewer from './presentationViewer/pGridViewer'
+import renderRootDomain from './definitionViewer/rootDomainViewer'
 // import renderArcDiagram from './definitionViewer/arcDiagram'
 import testDataPGrid from '../../test/mainPanel/presentationViewer/testDataPGrid'
+import testDataRootDomain from '../../test/mainPanel/definitionViewer/testDataRootDomain'
 // import testDataArc from '../../test/mainPanel/definitionViewer/testDataArcDiagram'
 
 export default title => {
@@ -19,13 +21,6 @@ export default title => {
     <fluent-tab-panel id="presentationPanel">
     </fluent-tab-panel>
     <fluent-tab-panel id="definitionPanel">
-        <ol>
-            <li><fluent-anchor href="#" appearance="hypertext">Mushroom-Sausage Ragù</fluent-anchor></li>
-            <li><fluent-anchor href="#" appearance="hypertext">Tomato Bread Soup with Steamed Mussels</fluent-anchor></li>
-            <li><fluent-anchor href="#" appearance="hypertext">Grilled Fish with Artichoke Caponata</-anchor></li>
-            <li><fluent-anchor href="#" appearance="hypertext">Celery Root and Mushroom Lasagna</fluent-anchor></li>
-            <li><fluent-anchor href="#" appearance="hypertext">Osso Buco with Citrus Gremolata</fluent-anchor></li>
-        </ol>
     </fluent-tab-panel>
     <fluent-tab-panel id="calculationPanel">
         <ol>
@@ -42,6 +37,12 @@ export default title => {
     presentationPanel.appendChild(rViewer)
     rViewer.setAttribute('id', 'r-viewer')
     // mainPanel.appendChild(rViewer)
-    renderPGridViewer(testDataPGrid)
+    // renderPGridViewer(testDataPGrid)
+
+    const definitionPanel = document.getElementById('definitionPanel')
+    const rViewerDefinition = document.createElement('div')
+    definitionPanel.appendChild(rViewerDefinition)
+    rViewerDefinition.setAttribute('id', 'r-viewerDefinition')
+    renderRootDomain(testDataRootDomain)
     // renderArcDiagram(testDataArc)
 }
