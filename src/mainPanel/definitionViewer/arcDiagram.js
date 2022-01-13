@@ -4,7 +4,7 @@ import transformDRS from './transformDRS'
 const charWidth = 7
 export default rawData => {
     const data = transformDRS(rawData)
-    const rViewer = document.getElementById('r-viewer')
+    const rViewer = document.getElementById('arcDiagramDiv')
     if (!rViewer) {
         return
     }
