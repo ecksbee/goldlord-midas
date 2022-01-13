@@ -47,7 +47,6 @@ export default rawData => {
                     document.getElementById(
                         'r-viewerDefinition'
                     ).style.display = 'none'
-                    return
                 },
             })
         })
