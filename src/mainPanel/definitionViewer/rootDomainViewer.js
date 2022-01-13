@@ -1,17 +1,17 @@
-// also used in rootDomainViewer.js
+// this code copied and modified from pGridViewer.js.
 
 import canvasDatagrid from 'canvas-datagrid'
-import transformPGrid from './transformPGrid'
+import transformRootDomain from './transformRootDomain'
 
 export default rawData => {
-    const data = transformPGrid(rawData)
-    const rViewer = document.getElementById('r-viewerPresentation')
-    if (!rViewer) {
+    const data = transformRootDomain(rawData)
+    const rViewer2 = document.getElementById('r-viewerDefinition')
+    if (!rViewer2) {
         return
     }
-    const pGridDiv = document.createElement('div')
-    pGridDiv.setAttribute('id', 'pgrid')
-    rViewer.appendChild(pGridDiv)
+    const rootDomainDiv = document.createElement('div')
+    rootDomainDiv.setAttribute('id', 'rootdomain')
+    rViewer2.appendChild(rootDomainDiv)
 
     setTimeout(() => {
         const grid = canvasDatagrid({
@@ -22,9 +22,8 @@ export default rawData => {
             allowFreezingColumns: true,
             allowFreezingRows: true,
         })
-
         // grid.fitColumnToValues('a')
-        pGridDiv.appendChild(grid)
+        rootDomainDiv.appendChild(grid)
         grid.style.height = '95%'
         grid.style.width = '95%'
         grid.data = data
@@ -35,7 +34,5 @@ export default rawData => {
         grid.addEventListener('beforesortcolumn', e => {
             e.preventDefault()
         })
-        // let aWidth = grid.findColumnMaxTextLength('A')
-        // console.log(aWidth)
     }, 100)
 }

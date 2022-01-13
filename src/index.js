@@ -28,7 +28,7 @@ provideFluentDesignSystem().register(
 renderSelectorPanel(testDataCatalog)
 // where event listeners should be added.
 
-document.getElementById('fetch-button').addEventListener('click', () => {
+document.getElementById('fetch-button').addEventListener('click', e => {
     let a = document
         .getElementById('subjectSelectize')
         .getAttribute(`current-value`)
@@ -68,4 +68,6 @@ document.getElementById('fetch-button').addEventListener('click', () => {
         }
     }
     renderMainPanel(mainPanelTitle)
+    e.stopPropagation()
+    e.preventDefault()
 })
