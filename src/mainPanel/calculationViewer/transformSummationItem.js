@@ -1,4 +1,4 @@
-// this code copied and modified from //presentationViewer/transformrootDomain.js.
+// this code copied and modified from //definitionViewer/transformRootDomain.js.
 
 export default rootDomain => {
     const lang = 'Unlabelled'
