@@ -1,8 +1,10 @@
 import renderPGridViewer from './presentationViewer/pGridViewer'
 import renderRootDomain from './definitionViewer/rootDomainViewer'
+import renderSummationItemViewer from './calculationViewer/summationItemViewer'
 // import renderArcDiagram from './definitionViewer/arcDiagram'
 import testDataPGrid from '../../test/mainPanel/presentationViewer/testDataPGrid'
 import testDataRootDomain from '../../test/mainPanel/definitionViewer/testDataRootDomain'
+import testDataCalculation from '../../test/mainPanel/calculationViewer/testDataCGrid'
 // import testDataArc from '../../test/mainPanel/definitionViewer/testDataArcDiagram'
 
 const renderPresentationTab = e => {
@@ -29,6 +31,19 @@ const renderDefinitionTab = e => {
     renderRootDomain(testDataRootDomain)
 }
 
+const renderCalculationTab = e => {
+    const temp = document.getElementById('r-viewerCalculation')
+    if (temp) {
+        return
+    }
+    const calculationPanel = document.getElementById('calculationPanel')
+    const rViewerCalculation = document.createElement('div')
+    calculationPanel.appendChild(rViewerCalculation)
+    rViewerCalculation.setAttribute('id', 'r-viewerCalculation')
+    rViewerCalculation.innerHTML = '<p>HELLOOOOOOO</p>'
+    renderSummationItemViewer(testDataCalculation)
+}
+
 export default title => {
     const mainPanel = document.getElementById('main-panel')
     if (!mainPanel) {
@@ -47,11 +62,6 @@ export default title => {
     <fluent-tab-panel id="definitionPanel">
     </fluent-tab-panel>
     <fluent-tab-panel id="calculationPanel">
-        <ol>
-            <li><fluent-anchor href="#" appearance="hypertext">Tiramisu</fluent-anchor></li>
-            <li><fluent-anchor href="#" appearance="hypertext">Spumoni</fluent-anchor></li>
-            <li><fluent-anchor href="#" appearance="hypertext">Limoncello and Ice Cream with Biscotti</fluent-anchor></li>
-        </ol>
     </fluent-tab-panel>
 </fluent-tabs>
     `
@@ -67,4 +77,8 @@ export default title => {
     document
         .getElementById('definition')
         .addEventListener('click', renderDefinitionTab)
+
+    document
+        .getElementById('calculation')
+        .addEventListener('click', renderCalculationTab)
 }
