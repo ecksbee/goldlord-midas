@@ -40,8 +40,8 @@ const renderCalculationTab = e => {
     const rViewerCalculation = document.createElement('div')
     calculationPanel.appendChild(rViewerCalculation)
     rViewerCalculation.setAttribute('id', 'r-viewerCalculation')
-    rViewerCalculation.innerHTML = '<p>HELLOOOOOOO</p>'
-    renderSummationItemViewer(testDataCalculation)
+    // rViewerCalculation.innerHTML = '<p>HELLOOOOOOO</p>'
+    renderSummationItemViewer(testDataCalculation.SummationItems[0])
 }
 
 export default title => {

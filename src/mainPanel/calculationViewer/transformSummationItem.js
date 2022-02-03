@@ -1,20 +1,24 @@
 // this code copied and modified from //definitionViewer/transformRootDomain.js.
-
+// has glitch when i=0, j=2!!!!!!
+// use conditional breakpoints at line 96.
 export default rootDomain => {
     const lang = 'Unlabelled'
     const labelRole = 'Default'
     const grid = []
     const rootDomainName = rootDomain.Label.Default.Unlabelled
     const maxRow =
-        rootDomain.PrimaryItems.length +
+        rootDomain.ContributingConcepts.length +
         rootDomain.ContextualMemberGrid.length +
         1
-    const maxCol = rootDomain.PeriodHeaders.length + 1
+    const maxCol = rootDomain.PeriodHeaders.length + 2
     for (let i = 0; i < maxRow; i++) {
         const row = []
-        if (i < rootDomain.ContextualMemberGrid.length + 1) { // the length of contextualmembergrid is the number of axes. we want a row for each axis.
+        if (i < rootDomain.ContextualMemberGrid.length + 1) {
+            // the length of contextualmembergrid is the number of axes. we want a row for each axis.
             for (let j = 0; j < maxCol; j++) {
                 if (j === 0) {
+                    row.push('')
+                } else if (j === 1) {
                     if (i === 0) {
                         row.push(rootDomainName)
                     } else {
@@ -49,11 +53,11 @@ export default rootDomain => {
                     }
                 } else {
                     if (i === 0) {
-                        const ph = rootDomain.PeriodHeaders[j - 1]
+                        const ph = rootDomain.PeriodHeaders[j - 2]
                         row.push(ph[lang] || ph.Unlabelled)
                     } else {
                         const memberCell =
-                            rootDomain.ContextualMemberGrid[i - 1][j - 1]
+                            rootDomain.ContextualMemberGrid[i - 1][j - 2]
                         if (memberCell.TypedMember) {
                             row.push(memberCell.TypedMember)
                         } else if (memberCell.ExplicitMember) {
@@ -80,7 +84,9 @@ export default rootDomain => {
             const index = i - rootDomain.ContextualMemberGrid.length - 1
             for (let j = 0; j < maxCol; j++) {
                 if (j === 0) {
-                    const il = rootDomain.PrimaryItems[index]
+                    row.push('filllllller')
+                } else if (j === 1) {
+                    const il = rootDomain.ContributingConcepts[index]
                     if (il.Label[labelRole]) {
                         row.push(
                             il.Label[labelRole][lang] ||
@@ -90,7 +96,7 @@ export default rootDomain => {
                         row.push(il.Label.Default.Unlabelled)
                     }
                 } else {
-                    const fact = rootDomain.FactualQuadrant[index][j - 1]
+                    const fact = rootDomain.FactualQuadrant[index][j - 2]
                     if (fact.Unlabelled.Core) {
                         if (fact[lang]) {
                             row.push(

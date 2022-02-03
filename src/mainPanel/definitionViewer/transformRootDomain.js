@@ -12,7 +12,8 @@ export default rootDomain => {
     const maxCol = rootDomain.PeriodHeaders.length + 1
     for (let i = 0; i < maxRow; i++) {
         const row = []
-        if (i < rootDomain.ContextualMemberGrid.length + 1) { // the length of contextualmembergrid is the number of axes. we want a row for each axis.
+        if (i < rootDomain.ContextualMemberGrid.length + 1) {
+            // the length of contextualmembergrid is the number of axes. we want a row for each axis.
             for (let j = 0; j < maxCol; j++) {
                 if (j === 0) {
                     if (i === 0) {
