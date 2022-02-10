@@ -1,28 +1,29 @@
-// this code copied and modified from //definitionViewer/transformRootDomain.js.
+// this code copied and modified from //definitionViewer/transformsummationItem.js.
 // has glitch when i=0, j=2!!!!!!
 // use conditional breakpoints at line 96.
-export default rootDomain => {
+export default summationItem => {
     const lang = 'Unlabelled'
     const labelRole = 'Default'
     const grid = []
-    const rootDomainName = rootDomain.Label.Default.Unlabelled
+    const summationItemName = summationItem.Label.Default.Unlabelled
     const maxRow =
-        rootDomain.ContributingConcepts.length +
-        rootDomain.ContextualMemberGrid.length +
+        summationItem.ContributingConcepts.length +
+        summationItem.ContextualMemberGrid.length +
         1
-    const maxCol = rootDomain.PeriodHeaders.length + 2
+    const maxCol = summationItem.PeriodHeaders.length + 2
     for (let i = 0; i < maxRow; i++) {
         const row = []
-        if (i < rootDomain.ContextualMemberGrid.length + 1) {
+        if (i < summationItem.ContextualMemberGrid.length + 1) {
             // the length of contextualmembergrid is the number of axes. we want a row for each axis.
             for (let j = 0; j < maxCol; j++) {
                 if (j === 0) {
                     row.push('')
                 } else if (j === 1) {
                     if (i === 0) {
-                        row.push(rootDomainName)
+                        // row.push(summationItemName)
+                        row.push('')
                     } else {
-                        const voidCell = rootDomain.VoidQuadrant[i - 1]
+                        const voidCell = summationItem.VoidQuadrant[i - 1]
                         if (voidCell.TypedDomain) {
                             if (voidCell.TypedDomain.Label[labelRole]) {
                                 const langVal =
@@ -53,11 +54,11 @@ export default rootDomain => {
                     }
                 } else {
                     if (i === 0) {
-                        const ph = rootDomain.PeriodHeaders[j - 2]
+                        const ph = summationItem.PeriodHeaders[j - 2]
                         row.push(ph[lang] || ph.Unlabelled)
                     } else {
                         const memberCell =
-                            rootDomain.ContextualMemberGrid[i - 1][j - 2]
+                            summationItem.ContextualMemberGrid[i - 1][j - 2]
                         if (memberCell.TypedMember) {
                             row.push(memberCell.TypedMember)
                         } else if (memberCell.ExplicitMember) {
@@ -81,12 +82,15 @@ export default rootDomain => {
                 }
             }
         } else {
-            const index = i - rootDomain.ContextualMemberGrid.length - 1
+            const index = i - summationItem.ContextualMemberGrid.length - 1
             for (let j = 0; j < maxCol; j++) {
                 if (j === 0) {
-                    row.push('filllllller')
+                    let fillText =
+                        summationItem.ContributingConcepts[index].Sign +
+                        summationItem.ContributingConcepts[index].Scale
+                    row.push(fillText)
                 } else if (j === 1) {
-                    const il = rootDomain.ContributingConcepts[index]
+                    const il = summationItem.ContributingConcepts[index]
                     if (il.Label[labelRole]) {
                         row.push(
                             il.Label[labelRole][lang] ||
@@ -96,7 +100,7 @@ export default rootDomain => {
                         row.push(il.Label.Default.Unlabelled)
                     }
                 } else {
-                    const fact = rootDomain.FactualQuadrant[index][j - 2]
+                    const fact = summationItem.FactualQuadrant[index][j - 2]
                     if (fact.Unlabelled.Core) {
                         if (fact[lang]) {
                             row.push(
@@ -119,5 +123,27 @@ export default rootDomain => {
         }
         grid.push(row)
     }
+    // let numColumnsWithSums = grid[0].length - 2
+    // let initialSummedColumn = 2
+    // alert(numColumnsWithSums)
+    let row = []
+    const factualQuadrantLastIndex = summationItem.FactualQuadrant.length - 1
+    for (let k = 0; k < grid[0].length; k++) {
+        if (k === 0) {
+            row.push('=')
+        } else if (k === 1) {
+            row.push(summationItemName)
+        } else {
+            let indexWithinFQLI = k - 2
+            let text =
+                // prettier-ignore
+                summationItem.FactualQuadrant[factualQuadrantLastIndex][indexWithinFQLI].Unlabelled.Head +
+                summationItem.FactualQuadrant[factualQuadrantLastIndex][indexWithinFQLI].Unlabelled.Core +
+                summationItem.FactualQuadrant[factualQuadrantLastIndex][indexWithinFQLI].Unlabelled.Tail
+            row.push(text)
+        }
+    }
+
+    grid.push(row)
     return grid
 }
