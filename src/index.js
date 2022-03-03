@@ -6,6 +6,7 @@ import {
     fluentTabPanel,
     fluentTabs,
 } from '@fluentui/web-components'
+import 'isomorphic-fetch'
 import renderSelectorPanel from './selectorPanel'
 import renderMainPanel from './mainPanel'
 import testDataCatalog from '../test/selectorPanel/testDataCatalog'
@@ -36,7 +37,18 @@ document.getElementById('fetch-button').addEventListener('click', e => {
     let b = document
         .getElementById('relationshipSetSelectize')
         .getAttribute('current-value')
-    // let c = testDataCatalog.Networks[a][b]
+    let c = testDataCatalog.Networks[a][b]
+    alert(c)
+    fetch('http://localhost:8080/folders/test_gold')
+        .then(function(response) {
+            if (response.status >= 400) {
+                throw new Error('Bad response from server')
+            }
+            return response.json()
+        })
+        .then(function(stories) {
+            console.log(stories)
+        })
     // TODO use c (the hash) to fetch the renderable.
     while (selectorPanel.firstChild) {
         selectorPanel.removeChild(selectorPanel.firstChild)

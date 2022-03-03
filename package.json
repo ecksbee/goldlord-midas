@@ -11,11 +11,12 @@
     "lint": "eslint src/**",
     "lint-fix": "eslint --fix src/**"
   },
-  "author": "Joshua Nario",
+  "author": "Joshua Nario and John Lee",
   "dependencies": {
     "@fluentui/web-components": "^2.1.0",
     "canvas-datagrid": "^0.3.19",
-    "d3": "^7.1.1"
+    "d3": "^7.1.1",
+    "isomorphic-fetch": "^3.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
