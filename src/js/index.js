@@ -7,6 +7,7 @@ import {
     fluentTabs,
 } from '@fluentui/web-components'
 import 'isomorphic-fetch'
+import id from './id'
 import renderSelectorPanel from './selectorPanel'
 import renderMainPanel from './mainPanel'
 import testDataCatalog from '../test/selectorPanel/testDataCatalog'
@@ -29,7 +30,7 @@ provideFluentDesignSystem().register(
 renderSelectorPanel(testDataCatalog)
 
 document.getElementById('fetch-button').addEventListener('click', e => {
-    const uuid = 'test_gold' // todo
+    const uuid = id()
     let a = document
         .getElementById('subjectSelectize')
         .getAttribute(`current-value`)
