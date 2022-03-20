@@ -10,7 +10,7 @@ import 'isomorphic-fetch'
 import renderSelectorPanel from './selectorPanel'
 import renderMainPanel from './mainPanel'
 import testDataCatalog from '../test/selectorPanel/testDataCatalog'
-import './global.scss'
+import '../scss/global.scss'
 const selectorPanel = document.createElement('div')
 selectorPanel.setAttribute('id', 'selector-panel')
 selectorPanel.classList.add('bigPanel')
@@ -27,9 +27,9 @@ provideFluentDesignSystem().register(
 )
 
 renderSelectorPanel(testDataCatalog)
-// where event listeners should be added.
 
 document.getElementById('fetch-button').addEventListener('click', e => {
+    const uuid = 'test_gold' // todo
     let a = document
         .getElementById('subjectSelectize')
         .getAttribute(`current-value`)
@@ -37,16 +37,15 @@ document.getElementById('fetch-button').addEventListener('click', e => {
     let b = document
         .getElementById('relationshipSetSelectize')
         .getAttribute('current-value')
-    let c = testDataCatalog.Networks[a][b]
-    alert(c)
-    fetch('http://localhost:8080/folders/test_gold')
-        .then(function(response) {
+    // let c = testDataCatalog.Networks[a][b]
+    fetch('folders/' + uuid)
+        .then(response => {
             if (response.status >= 400) {
                 throw new Error('Bad response from server')
             }
             return response.json()
         })
-        .then(function(stories) {
+        .then(stories => {
             console.log(stories)
         })
     // TODO use c (the hash) to fetch the renderable.
