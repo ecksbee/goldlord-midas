@@ -7,10 +7,10 @@ import {
     fluentTabs,
 } from '@fluentui/web-components'
 import 'isomorphic-fetch'
-import id from './id'
+import fetchCatalog from './fetchCatalog'
+import fetchRenderable from './fetchRenderable'
 import renderSelectorPanel from './selectorPanel'
 import renderMainPanel from './mainPanel'
-import testDataCatalog from '../test/selectorPanel/testDataCatalog'
 import '../scss/global.scss'
 const selectorPanel = document.createElement('div')
 selectorPanel.setAttribute('id', 'selector-panel')
@@ -27,59 +27,49 @@ provideFluentDesignSystem().register(
     fluentTabs()
 )
 
-renderSelectorPanel(testDataCatalog)
-
-document.getElementById('fetch-button').addEventListener('click', e => {
-    const uuid = id()
-    let a = document
-        .getElementById('subjectSelectize')
-        .getAttribute(`current-value`)
-    console.log(a)
-    let b = document
-        .getElementById('relationshipSetSelectize')
-        .getAttribute('current-value')
-    // let c = testDataCatalog.Networks[a][b]
-    fetch('folders/' + uuid)
-        .then(response => {
-            if (response.status >= 400) {
-                throw new Error('Bad response from server')
+fetchCatalog().then(
+    catalog => {
+        renderSelectorPanel(catalog)
+        document.getElementById('fetch-button').addEventListener('click', e => {
+            const subject = document
+                .getElementById('subjectSelectize')
+                .getAttribute(`current-value`)
+            const relationshipSet = document
+                .getElementById('relationshipSetSelectize')
+                .getAttribute('current-value')
+            const hash = catalog.Networks[subject][relationshipSet]
+            while (selectorPanel.firstChild) {
+                selectorPanel.removeChild(selectorPanel.firstChild)
             }
-            return response.json()
+            fetchRenderable(hash).then(
+                renderable => {
+                    const relationshipSetsLen = catalog.RelationshipSets.length
+                    let checkedURI = ''
+                    let mainPanelTitle = ''
+                    for (let i = 0; i < relationshipSetsLen; i++) {
+                        checkedURI = catalog.RelationshipSets[i].RoleURI
+                        if (checkedURI === relationshipSet) {
+                            mainPanelTitle = catalog.RelationshipSets[i].Title
+                            break
+                        }
+                    }
+                    const subjectsLen = catalog.Subjects.length
+                    let checkedEntity = ''
+                    for (let i = 0; i < subjectsLen; i++) {
+                        checkedEntity =
+                            catalog.Subjects[i].Entity.Scheme +
+                            '/' +
+                            catalog.Subjects[i].Entity.CharData
+                        if (checkedEntity === subject) {
+                            mainPanelTitle += ' | ' + catalog.Subjects[i].Name
+                            break
+                        }
+                    }
+                    renderMainPanel(mainPanelTitle, renderable)
+                    e.stopPropagation()
+                    e.preventDefault()
+                }
+            )
         })
-        .then(stories => {
-            console.log(stories)
-        })
-    // TODO use c (the hash) to fetch the renderable.
-    while (selectorPanel.firstChild) {
-        selectorPanel.removeChild(selectorPanel.firstChild)
     }
-
-    let relationshipSetsLen = testDataCatalog.RelationshipSets.length
-    let checkedURI = ''
-    let mainPanelTitle = ''
-    // todo: turn this into a "foreach" loop for better performance.
-    for (let i = 0; i < relationshipSetsLen; i++) {
-        checkedURI = testDataCatalog.RelationshipSets[i].RoleURI
-        if (checkedURI === b) {
-            mainPanelTitle = testDataCatalog.RelationshipSets[i].Title
-            break
-        }
-    }
-
-    let subjectsLen = testDataCatalog.Subjects.length
-    let checkedEntity = ''
-    // todo: turn this into a "foreach" loop for better performance.
-    for (let i = 0; i < subjectsLen; i++) {
-        checkedEntity =
-            testDataCatalog.Subjects[i].Entity.Scheme +
-            '/' +
-            testDataCatalog.Subjects[i].Entity.CharData
-        if (checkedEntity === a) {
-            mainPanelTitle += ' | ' + testDataCatalog.Subjects[i].Name
-            break
-        }
-    }
-    renderMainPanel(mainPanelTitle)
-    e.stopPropagation()
-    e.preventDefault()
-})
+)

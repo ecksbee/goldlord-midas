@@ -40,11 +40,10 @@ const renderCalculationTab = e => {
     const rViewerCalculation = document.createElement('div')
     calculationPanel.appendChild(rViewerCalculation)
     rViewerCalculation.setAttribute('id', 'r-viewerCalculation')
-    // rViewerCalculation.innerHTML = '<p>HELLOOOOOOO</p>'
     renderSummationItemViewer(testDataCalculation.SummationItems[0])
 }
 
-export default title => {
+export default (title, renderable) => {
     const mainPanel = document.getElementById('main-panel')
     if (!mainPanel) {
         return
@@ -54,22 +53,22 @@ export default title => {
     mainPanel.appendChild(mainTitleBar)
     const mainPanelTabs = document.createElement('div')
     mainPanelTabs.innerHTML = `<fluent-tabs activeid="entrees">
-    <fluent-tab id="presentation">Presentation</fluent-tab>
-    <fluent-tab id="definition">Definition</fluent-tab>
-    <fluent-tab id="calculation">Calculation</fluent-tab>
-    <fluent-tab-panel id="presentationPanel">
-    </fluent-tab-panel>
-    <fluent-tab-panel id="definitionPanel">
-    </fluent-tab-panel>
-    <fluent-tab-panel id="calculationPanel">
-    </fluent-tab-panel>
-</fluent-tabs>
+        <fluent-tab id="presentation">Presentation</fluent-tab>
+        <fluent-tab id="definition">Definition</fluent-tab>
+        <fluent-tab id="calculation">Calculation</fluent-tab>
+        <fluent-tab-panel id="presentationPanel">
+        </fluent-tab-panel>
+        <fluent-tab-panel id="definitionPanel">
+        </fluent-tab-panel>
+        <fluent-tab-panel id="calculationPanel">
+        </fluent-tab-panel>
+    </fluent-tabs>
     `
     mainPanel.appendChild(mainPanelTabs)
 
-    // renderArcDiagram(testDataArc)
     renderPresentationTab()
 
+    console.log(renderable)
     document
         .getElementById('presentation')
         .addEventListener('click', renderPresentationTab)
