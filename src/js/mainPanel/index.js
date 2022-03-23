@@ -1,13 +1,10 @@
 import renderPGridViewer from './presentationViewer/pGridViewer'
 import renderRootDomain from './definitionViewer/rootDomainViewer'
 import renderSummationItemViewer from './calculationViewer/summationItemViewer'
-// import renderArcDiagram from './definitionViewer/arcDiagram'
-import testDataPGrid from '../../test/mainPanel/presentationViewer/testDataPGrid'
 import testDataRootDomain from '../../test/mainPanel/definitionViewer/testDataRootDomain'
 import testDataCalculation from '../../test/mainPanel/calculationViewer/testDataCGrid'
-// import testDataArc from '../../test/mainPanel/definitionViewer/testDataArcDiagram'
 
-const renderPresentationTab = e => {
+const renderPresentationTab = (e, renderable) => {
     const temp = document.getElementById('r-viewerPresentation')
     if (temp) {
         return
@@ -16,7 +13,7 @@ const renderPresentationTab = e => {
     const rViewerPresentation = document.createElement('div')
     presentationPanel.appendChild(rViewerPresentation)
     rViewerPresentation.setAttribute('id', 'r-viewerPresentation')
-    renderPGridViewer(testDataPGrid)
+    renderPGridViewer(renderable.PGrid)
 }
 
 const renderDefinitionTab = e => {
@@ -66,12 +63,11 @@ export default (title, renderable) => {
     `
     mainPanel.appendChild(mainPanelTabs)
 
-    renderPresentationTab()
+    renderPresentationTab(null, renderable)
 
-    console.log(renderable)
     document
         .getElementById('presentation')
-        .addEventListener('click', renderPresentationTab)
+        .addEventListener('click', e => renderPresentationTab(e, renderable))
 
     document
         .getElementById('definition')
