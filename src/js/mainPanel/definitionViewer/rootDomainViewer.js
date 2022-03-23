@@ -1,13 +1,11 @@
-// this code copied and modified from pGridViewer.js.
-
 import canvasDatagrid from 'canvas-datagrid'
 import transformRootDomain from './transformRootDomain'
 
-import arcDiagramTestData from '../../../test/mainPanel/definitionViewer/testDataArcDiagram'
 import renderArcDiagram from './arcDiagram'
 
-export default rawData => {
-    const data = transformRootDomain(rawData)
+export default DGrid => {
+    const rootDomain = DGrid.RootDomains[0]
+    const data = transformRootDomain(rootDomain)
     const rViewer2 = document.getElementById('r-viewerDefinition')
     if (!rViewer2) {
         return
@@ -25,25 +23,22 @@ export default rawData => {
             allowFreezingColumns: true,
             allowFreezingRows: true,
         })
-        // grid.fitColumnToValues('a')
         rootDomainDiv.appendChild(grid)
         grid.style.height = '95%'
         grid.style.width = '95%'
         grid.data = data
         grid.frozenColumn = 1
-        let numFrozenRows = rawData.VoidQuadrant.length + 1
+        let numFrozenRows = rootDomain.VoidQuadrant.length + 1
         grid.frozenRow = numFrozenRows
-        // grid.fitColumnToValues()
         grid.addEventListener('beforesortcolumn', e => {
             e.preventDefault()
         })
         grid.addEventListener('contextmenu', e => {
+            console.log("test")
             e.items.push({
-                // dimensional relationship set
                 title: 'Visualize DRS',
                 click: () => {
-                    // TODO: MAKE THE CONTEXT MENU GO AWAY AFTER THIS IS CLICKED.
-                    mountArcDiagram()
+                    mountArcDiagram(DGrid.DRS)
                     document.getElementById(
                         'r-viewerDefinition'
                     ).style.display = 'none'
@@ -53,9 +48,9 @@ export default rawData => {
     }, 100)
 }
 
-const mountArcDiagram = e => {
+const mountArcDiagram = DRS => {
     const definitionPanel = document.getElementById('definitionPanel')
-    let arcDiagramDiv = document.getElementById('arcDiagramDiv') // if it isn't on the page yet, returns null and evaluates to falsey.
+    let arcDiagramDiv = document.getElementById('arcDiagramDiv')
     if (arcDiagramDiv) {
         arcDiagramDiv.style.display = 'block'
     } else {
@@ -71,6 +66,6 @@ const mountArcDiagram = e => {
             document.getElementById('arcDiagramDiv').style.display = 'none'
         })
         definitionPanel.appendChild(arcDiagramDiv)
-        renderArcDiagram(arcDiagramTestData)
+        renderArcDiagram(DRS)
     }
 }

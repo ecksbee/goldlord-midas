@@ -1,7 +1,6 @@
 import renderPGridViewer from './presentationViewer/pGridViewer'
 import renderRootDomain from './definitionViewer/rootDomainViewer'
 import renderSummationItemViewer from './calculationViewer/summationItemViewer'
-import testDataRootDomain from '../../test/mainPanel/definitionViewer/testDataRootDomain'
 import testDataCalculation from '../../test/mainPanel/calculationViewer/testDataCGrid'
 
 const renderPresentationTab = (e, renderable) => {
@@ -16,7 +15,7 @@ const renderPresentationTab = (e, renderable) => {
     renderPGridViewer(renderable.PGrid)
 }
 
-const renderDefinitionTab = e => {
+const renderDefinitionTab = (e, renderable) => {
     const temp = document.getElementById('r-viewerDefinition')
     if (temp) {
         return
@@ -25,7 +24,7 @@ const renderDefinitionTab = e => {
     const rViewerDefinition = document.createElement('div')
     definitionPanel.appendChild(rViewerDefinition)
     rViewerDefinition.setAttribute('id', 'r-viewerDefinition')
-    renderRootDomain(testDataRootDomain)
+    renderRootDomain(renderable.DGrid)
 }
 
 const renderCalculationTab = e => {
@@ -71,7 +70,7 @@ export default (title, renderable) => {
 
     document
         .getElementById('definition')
-        .addEventListener('click', renderDefinitionTab)
+        .addEventListener('click', e => renderDefinitionTab(e, renderable))
 
     document
         .getElementById('calculation')

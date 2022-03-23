@@ -1,5 +1,3 @@
-// also used in rootDomainViewer.js
-
 import canvasDatagrid from 'canvas-datagrid'
 import transformPGrid from './transformPGrid'
 
@@ -23,7 +21,6 @@ export default rawData => {
             allowFreezingRows: true,
         })
 
-        // grid.fitColumnToValues('a')
         pGridDiv.appendChild(grid)
         grid.style.height = '95%'
         grid.style.width = '95%'
@@ -31,11 +28,8 @@ export default rawData => {
         grid.frozenColumn = 1
         let numFrozenRows = rawData.VoidQuadrant.length + 1
         grid.frozenRow = numFrozenRows
-        // grid.fitColumnToValues()
         grid.addEventListener('beforesortcolumn', e => {
             e.preventDefault()
         })
-        // let aWidth = grid.findColumnMaxTextLength('A')
-        // console.log(aWidth)
     }, 100)
 }
