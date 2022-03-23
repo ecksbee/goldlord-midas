@@ -31,5 +31,16 @@ export default CGrid => {
         grid.addEventListener('beforesortcolumn', e => {
             e.preventDefault()
         })
+        grid.addEventListener('contextmenu', e => {
+            CGrid.SummationItems.forEach(item => {
+                e.items.push({
+                    title: item.Href,
+                    click: () => {
+                        grid.data = transformSummationItem(item)
+                        grid.frozenRow = item.VoidQuadrant.length + 1
+                    },
+                })
+            });
+        })
     }, 100)
 }

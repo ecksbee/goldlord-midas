@@ -34,7 +34,6 @@ export default DGrid => {
             e.preventDefault()
         })
         grid.addEventListener('contextmenu', e => {
-            console.log("test")
             e.items.push({
                 title: 'Visualize DRS',
                 click: () => {
@@ -43,7 +42,16 @@ export default DGrid => {
                         'r-viewerDefinition'
                     ).style.display = 'none'
                 },
-            })
+            });
+            DGrid.RootDomains.forEach(item => {
+                e.items.push({
+                    title: item.Href,
+                    click: () => {
+                        grid.data = transformRootDomain(item)
+                        grid.frozenRow = item.VoidQuadrant.length + 1
+                    },
+                })
+            });
         })
     }, 100)
 }
