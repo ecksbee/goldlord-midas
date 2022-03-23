@@ -1,75 +1,124 @@
-const publicPath = '/dist';
+/**
+ * Webpack main configuration file
+ */
 
-const config = {
-  context: `${__dirname}/src`, // `__dirname` is root of project
+const path = require('path');
+const fs = require('fs');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const HTMLWebpackPlugin = require('html-webpack-plugin');
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-  entry: './index.js',
+const environment = require('./configuration/environment');
 
+const templateFiles = fs.readdirSync(environment.paths.source)
+  .filter((file) => path.extname(file).toLowerCase() === '.html');
+
+const htmlPluginEntries = templateFiles.map((template) => new HTMLWebpackPlugin({
+  inject: true,
+  hash: false,
+  filename: template,
+  template: path.resolve(environment.paths.source, template),
+  favicon: path.resolve(environment.paths.source, 'images', 'favicon.ico'),
+}));
+
+module.exports = {
+  entry: {
+    app: path.resolve(environment.paths.source, 'js', 'index.js'),
+  },
   output: {
-    path: `${__dirname}/dist`, // `dist` is the destination
-    filename: 'bundle.js',
+    filename: 'js/[name].js',
+    path: environment.paths.output,
   },
-
-  // To run development server
-  devServer: {
-    contentBase: __dirname,
-    publicPath,
-    compress: true,
-    port: 9000,
-    hot: true,
-    index: 'index.html',
-  },
-
   module: {
     rules: [
       {
+        test: /\.((c|sa|sc)ss)$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader'],
+      },
+      {
         test: /\.js$/,
-        enforce: 'pre',
         exclude: /node_modules/,
-        loader: 'eslint-loader',
-        options: {
-          emitWarning: true, // don't fail the build for linting errors
+        use: ['babel-loader'],
+      },
+      {
+        test: /\.(png|gif|jpe?g|svg)$/i,
+        type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: environment.limits.images,
+          },
+        },
+        generator: {
+          filename: 'images/design/[name].[hash:6][ext]',
         },
       },
       {
-        test: /\.js$/, // Check for all js files
-        exclude: /node_modules/,
-        use: [{
-          loader: 'babel-loader',
-          options: { presets: ['env'] },
-        }],
-      },
-      {
-        test: /\.(png|jpe?g|gif|svg)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              useRelativePath: true,
-              publicPath,
-            },
+        test: /\.(eot|ttf|woff|woff2)$/,
+        type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: environment.limits.images,
           },
-        ],
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: /\.scss$/,
-        use: ['style-loader', 'css-loader', 'sass-loader']
+        },
+        generator: {
+          filename: 'images/design/[name].[hash:6][ext]',
+        },
       },
     ],
-
   },
-
-  resolve: {
-    alias: {
-      config: `${__dirname}/config.js`,
-    },
+  optimization: {
+    minimizer: [
+      '...',
+      new ImageMinimizerPlugin({
+        minimizer: {
+          implementation: ImageMinimizerPlugin.imageminMinify,
+          options: {
+            // Lossless optimization with custom option
+            // Feel free to experiment with options for better result for you
+            plugins: [
+              ['gifsicle', { interlaced: true }],
+              ['jpegtran', { progressive: true }],
+              ['optipng', { optimizationLevel: 5 }],
+              // Svgo configuration here https://github.com/svg/svgo#configuration
+              [
+                'svgo',
+                {
+                  plugins: [
+                    {
+                      name: 'removeViewBox',
+                      active: false,
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+      }),
+    ],
   },
-
-  devtool: 'eval-source-map', // Default development sourcemap
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: 'css/[name].css',
+    }),
+    new CleanWebpackPlugin({
+      verbose: true,
+      cleanOnceBeforeBuildPatterns: ['**/*', '!stats.json'],
+    }),
+    // new CopyWebpackPlugin({  //todo reassess
+    //   patterns: [
+    //     {
+    //       from: path.resolve(environment.paths.source, 'images', 'content'),
+    //       to: path.resolve(environment.paths.output, 'images', 'content'),
+    //       toType: 'dir',
+    //       globOptions: {
+    //         ignore: ['*.DS_Store', 'Thumbs.db'],
+    //       },
+    //     },
+    //   ],
+    // }),
+  ].concat(htmlPluginEntries),
+  target: 'web',
 };
-
-module.exports = config;
