@@ -1,12 +1,9 @@
-// this code copied and modified from rootDomainViewer.js.
-
 import canvasDatagrid from 'canvas-datagrid'
 import transformSummationItem from './transformSummationItem'
 
-// import calculationTestData from '../../../test/mainPanel/calculationViewer/testDataCGrid' will be used in future
-
-export default rawData => {
-    const data = transformSummationItem(rawData)
+export default CGrid => {
+    const summationItem = CGrid.SummationItems[0]
+    const data = transformSummationItem(summationItem)
     const rViewer2 = document.getElementById('r-viewerCalculation')
     if (!rViewer2) {
         return
@@ -24,17 +21,26 @@ export default rawData => {
             allowFreezingColumns: true,
             allowFreezingRows: true,
         })
-        // grid.fitColumnToValues('a')
         summationItemDiv.appendChild(grid)
         grid.style.height = '95%'
         grid.style.width = '95%'
         grid.data = data
         grid.frozenColumn = 2
-        let numFrozenRows = rawData.VoidQuadrant.length + 1
+        let numFrozenRows = summationItem.VoidQuadrant.length + 1
         grid.frozenRow = numFrozenRows
-        // grid.fitColumnToValues()
         grid.addEventListener('beforesortcolumn', e => {
             e.preventDefault()
+        })
+        grid.addEventListener('contextmenu', e => {
+            CGrid.SummationItems.forEach(item => {
+                e.items.push({
+                    title: item.Href,
+                    click: () => {
+                        grid.data = transformSummationItem(item)
+                        grid.frozenRow = item.VoidQuadrant.length + 1
+                    },
+                })
+            });
         })
     }, 100)
 }

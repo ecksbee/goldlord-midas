@@ -20,6 +20,9 @@ module.exports = merge(webpackConfiguration, {
     client: {
       overlay: true,
     },
+    proxy: {
+      '/folders': 'http://localhost:8080',
+    },
     open: true,
     compress: true,
     hot: false,
