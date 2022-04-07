@@ -2,6 +2,7 @@ import renderPGridViewer from './presentationViewer/pGridViewer'
 import renderRootDomain from './definitionViewer/rootDomainViewer'
 import renderSummationItemViewer from './calculationViewer/summationItemViewer'
 import renderSelectorPanel from './../selectorPanel'
+import initializeSelectorPanel from '../index'
 
 const renderPresentationTab = (e, renderable) => {
     const temp = document.getElementById('r-viewerPresentation')
@@ -18,6 +19,7 @@ const renderPresentationTab = (e, renderable) => {
 const returnToSelectorPanel = (catalog) => {
     document.getElementById('main-panel').innerHTML=''
     renderSelectorPanel(catalog)
+    initializeSelectorPanel(catalog)
 }
 
 const renderDefinitionTab = (e, renderable) => {
