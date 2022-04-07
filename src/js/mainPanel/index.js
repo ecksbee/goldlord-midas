@@ -1,6 +1,7 @@
 import renderPGridViewer from './presentationViewer/pGridViewer'
 import renderRootDomain from './definitionViewer/rootDomainViewer'
 import renderSummationItemViewer from './calculationViewer/summationItemViewer'
+import renderSelectorPanel from './../selectorPanel'
 
 const renderPresentationTab = (e, renderable) => {
     const temp = document.getElementById('r-viewerPresentation')
@@ -12,6 +13,11 @@ const renderPresentationTab = (e, renderable) => {
     presentationPanel.appendChild(rViewerPresentation)
     rViewerPresentation.setAttribute('id', 'r-viewerPresentation')
     renderPGridViewer(renderable.PGrid)
+}
+
+const returnToSelectorPanel = (catalog) => {
+    document.getElementById('main-panel').innerHTML=''
+    renderSelectorPanel(catalog)
 }
 
 const renderDefinitionTab = (e, renderable) => {
@@ -38,13 +44,13 @@ const renderCalculationTab = (e, renderable) => {
     renderSummationItemViewer(renderable.CGrid)
 }
 
-export default (title, renderable) => {
+export default (title, renderable, catalog) => {
     const mainPanel = document.getElementById('main-panel')
     if (!mainPanel) {
         return
     }
     const mainTitleBar = document.createElement('div')
-    mainTitleBar.innerHTML = `<h1 class='truncate'>` + title + `</h1>`
+    mainTitleBar.innerHTML = `<h1 class='truncate'>` + title + `</h1><br/><fluent-button id="returnHomeButton" appearance="accent">Back to Home</fluent-button>`
     mainPanel.appendChild(mainTitleBar)
     const mainPanelTabs = document.createElement('div')
     mainPanelTabs.innerHTML = `<fluent-tabs activeid="entrees">
@@ -74,4 +80,8 @@ export default (title, renderable) => {
     document
         .getElementById('calculation')
         .addEventListener('click', e => renderCalculationTab(e, renderable))
+    
+    document
+        .getElementById('returnHomeButton')
+        .addEventListener('click', e => returnToSelectorPanel(catalog))
 }

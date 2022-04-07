@@ -5,6 +5,7 @@ import {
     fluentTab,
     fluentTabPanel,
     fluentTabs,
+    fluentButton
 } from '@fluentui/web-components'
 import 'isomorphic-fetch'
 import fetchCatalog from './fetchCatalog'
@@ -24,7 +25,8 @@ provideFluentDesignSystem().register(
     fluentOption(),
     fluentTab(),
     fluentTabPanel(),
-    fluentTabs()
+    fluentTabs(),
+    fluentButton()
 )
 
 fetchCatalog().then(
@@ -65,7 +67,7 @@ fetchCatalog().then(
                             break
                         }
                     }
-                    renderMainPanel(mainPanelTitle, renderable)
+                    renderMainPanel(mainPanelTitle, renderable, catalog)
                     e.stopPropagation()
                     e.preventDefault()
                 }
