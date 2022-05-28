@@ -57,5 +57,5 @@ export default catalog => {
         `
     </fluent-combobox>
     </br>
-    <button id="fetch-button" >Browse</button>`
+    <fluent-button id="fetch-button" appearance="accent">Browse</fluent-button>`
 }

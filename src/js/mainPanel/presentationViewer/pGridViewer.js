@@ -22,8 +22,8 @@ export default rawData => {
         })
 
         pGridDiv.appendChild(grid)
-        grid.style.height = '95%'
-        grid.style.width = '95%'
+        grid.style.height = '98%'
+        grid.style.width = '98%'
         grid.data = data
         grid.frozenColumn = 1
         let numFrozenRows = rawData.VoidQuadrant.length + 1

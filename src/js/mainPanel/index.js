@@ -52,9 +52,11 @@ export default (title, renderable, catalog) => {
         return
     }
     const mainTitleBar = document.createElement('div')
-    mainTitleBar.innerHTML = `<h1 class='truncate'>` + title + `</h1><br/><fluent-button id="returnHomeButton" appearance="accent">Back to Home</fluent-button>`
+    mainTitleBar.setAttribute('id', 'main-panel-title')
+    mainTitleBar.innerHTML = `<h1 class='truncate'>` + title + `</h1><fluent-button id="returnHomeButton" appearance="accent">Back to Home</fluent-button>`
     mainPanel.appendChild(mainTitleBar)
     const mainPanelTabs = document.createElement('div')
+    mainPanelTabs.setAttribute('id', 'main-panel-body')
     mainPanelTabs.innerHTML = `<fluent-tabs activeid="entrees">
         <fluent-tab id="presentation">Presentation</fluent-tab>
         <fluent-tab id="definition">Definition</fluent-tab>

@@ -22,8 +22,8 @@ export default CGrid => {
             allowFreezingRows: true,
         })
         summationItemDiv.appendChild(grid)
-        grid.style.height = '95%'
-        grid.style.width = '95%'
+        grid.style.height = '98%'
+        grid.style.width = '98%'
         grid.data = data
         grid.frozenColumn = 2
         let numFrozenRows = summationItem.VoidQuadrant.length + 1
