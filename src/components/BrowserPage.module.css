@@ -1,0 +1,23 @@
+#main-panel{
+    width: 99vw;
+    height: 99vh;
+    padding: 1%;
+    margin: 0;
+}
+#main-panel-title{
+    width: 100%;
+    height: 8%;
+}
+.main-panel-title-h1 {
+    margin: 0 0 0.2em;
+}
+#main-panel-body{
+    width: 100%;
+    height: 92%;
+}
+.truncate {
+  width: 95vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
