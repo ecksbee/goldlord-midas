@@ -48,6 +48,14 @@ const DGridViewer = () => {
             <div id='dgrid' ref={dGridDiv} />
         </div>
         <div id='arc-diagram-wrapper' style={{
+            position: 'fixed',
+            'z-index': 9999,
+            'background-color': 'black',
+            color: 'white',
+            top: 0,
+            left: 0,
+            height: '100vh',
+            width: '100vw',
             display: store.getVisibleArcDiagram() ? 'block' : 'none'
         }}>
             <fluent-button id='hide-arc-diagram-button' appearance='accent' onClick={

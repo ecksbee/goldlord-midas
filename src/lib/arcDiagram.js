@@ -40,8 +40,8 @@ export default (data, mount) => {
         .select(mount)
         .append('svg')
         .attr('viewBox', [0, 0, width, height])
-        .attr('width', '75vw')
-        .attr('height', '75vh')
+        .attr('width', '100vw')
+        .attr('height', '85vh')
         .append('g')
         .attr('id', 'theG')
         .call(zoom)
@@ -72,7 +72,7 @@ export default (data, mount) => {
                 .join(' ')
         })
         .style('fill', 'none')
-        .attr('stroke', 'grey')
+        .attr('stroke', 'white')
         .style('stroke-width', 1)
         .style('stroke-opacity', 0.8)
     svg.selectAll('mynodes').data(
@@ -99,7 +99,8 @@ export default (data, mount) => {
             d => `translate(${x(d.name)},${height / 2 - 15}) rotate(-45)`
         )
         .style('font-size', '50%')
-        .style('font-family', 'Calibri')
+        .style('font-family', 'CarlitoRegular')
+        .attr('stroke', 'white')
     let source = []
     let target = []
     labels
@@ -127,7 +128,8 @@ export default (data, mount) => {
         .on('mouseout', d => {
             source = []
             target = []
-            links.style('stroke-opacity', 0.8).style('stroke-width', 1)
+            links.style('stroke-opacity', 0.8)
+            links.style('stroke-width', 1)
             labels.style('font-size', '50%')
         })
     links
@@ -151,7 +153,8 @@ export default (data, mount) => {
         .on('mouseout', d => {
             source = []
             target = []
-            links.style('stroke-opacity', 0.8).style('stroke-width', 1)
+            links.style('stroke-opacity', 0.8)
+            links.style('stroke-width', 1)
             labels.style('font-size', '50%')
         })
 }
