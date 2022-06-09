@@ -11,7 +11,6 @@ const PGridViewer = () => {
             const renderable = await store.getRenderable()
             const pGrid = renderable.PGrid
             const blob = transformPGrid(pGrid)
-            console.log(blob.grid)
             setTimeout(() => {
                 dataGrid(blob.grid, blob.numFrozenRows, 1, pGridDiv, null)
             }, 100)

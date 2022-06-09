@@ -5,14 +5,20 @@ export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu) => {
         const grid = canvasDatagrid({
             allowSorting: false, // affected by this bug https://github.com/TonyGermaneri/canvas-datagrid/issues/261
             allowColumnReordering: false,
-            autoResizeColumns: true,
+            autoResizeColumns: false,
             editable: false,
             allowFreezingColumns: true,
             allowFreezingRows: true,
+            style: {
+                cellFont: '10.66px CarlitoRegular',
+                columnHeaderCellFont: '12px CarlitoRegular',
+                rowHeaderCellFont: '12px CarlitoRegular',
+                activeCellFont: '10.66px CarlitoRegular',
+            }
         })
         mount.appendChild(grid)
-        grid.style.height = '98%'
-        grid.style.width = '98%'
+        grid.style.height = 'calc(100vh - 16px - 38px - 32px - 40px - 16px)'
+        grid.style.width = '98vw'
         grid.data = data
         grid.frozenColumn = numFrozenCols || 1
         grid.frozenRow = numFrozenRows
@@ -33,5 +39,10 @@ export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu) => {
                 //todo also raise signal for footnotes
             }
         })
+        const l = numFrozenCols || 1
+        const columnNames = Array.from(Array(l)).map((e, i) => i.toString())
+        columnNames.forEach(
+            name =>  grid.fitColumnToValues(name)
+        )
     }, 100)
 }

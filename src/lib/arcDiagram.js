@@ -37,7 +37,7 @@ export default (data, mount) => {
     }
     let zoom = d3.zoom().on('zoom', handleZoom)
     const svg = d3
-        .select(arcDiagramDiv)
+        .select(mount)
         .append('svg')
         .attr('viewBox', [0, 0, width, height])
         .attr('width', '75vw')

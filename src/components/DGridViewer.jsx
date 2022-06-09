@@ -47,7 +47,7 @@ const DGridViewer = () => {
         <div id='r-viewerDefinition'>
             <div id='dgrid' ref={dGridDiv} />
         </div>
-        <div id='arcDiagramDiv' style={{
+        <div id='arc-diagram-wrapper' style={{
             display: store.getVisibleArcDiagram() ? 'block' : 'none'
         }}>
             <fluent-button id='hide-arc-diagram-button' appearance='accent' onClick={

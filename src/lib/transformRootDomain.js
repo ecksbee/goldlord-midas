@@ -92,7 +92,7 @@ export default rootDomain => {
                     }
                     row.push(label)
                 } else {
-                    const fact = rootDomain.FactualQuadrant[index][j - 1]
+                    const fact = rootDomain.FactualQuadrant[index + 1][j - 1]
                     if (fact.Unlabelled.Core) {
                         if (fact[lang]) {
                             row.push(

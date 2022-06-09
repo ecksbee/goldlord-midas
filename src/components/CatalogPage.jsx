@@ -14,7 +14,7 @@ const CatalogPage = () => {
     const [subject, setSubject] = createSignal(initSubject)
     const [relationshipSet, setRelationshipSet] = createSignal(initRoleURI)
     return (<div id={styles['selector-panel']}>
-            <h1>{title}</h1>
+            <h1 id={styles.title}>{title}</h1>
             <h2>Entity</h2>
             <fluent-combobox id={styles.subjectSelectize} class={commonStyles['combo-boxes']} current-value={initSubject} >
                 <For each={subjects}>

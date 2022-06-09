@@ -48,7 +48,14 @@ const BrowserPage = () => {
     }
     return (<div id={styles['main-panel']}>
             <div id={styles['main-panel-title']}>
-                <h1 class={styles.truncate}>{mainPanelTitle}</h1>
+                <h1 class={styles.truncate + ' ' + styles['main-panel-title-h1']}>{mainPanelTitle}</h1>
+            </div>
+            <div>
+                <fluent-button id='back-to-catalog-button' appearance='accent' onClick={
+                    e => {
+                        store.setHash(null)
+                    }
+                }>Back</fluent-button>
             </div>
             <div id={styles['main-panel-body']}>
                 <fluent-tabs activeid={currentTab()}>
