@@ -46,7 +46,9 @@ const BrowserPage = () => {
             break
         }
     }
-    return (<div id={styles['main-panel']}>
+    return (<div id={styles['main-panel']} style={{
+        display: store.getNarrativeFact() ? 'none' : 'block'
+    }}>
             <div id={styles['main-panel-title']}>
                 <h1 class={styles.truncate + ' ' + styles['main-panel-title-h1']}>{mainPanelTitle}</h1>
             </div>

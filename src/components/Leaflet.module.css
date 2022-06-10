@@ -1,0 +1,27 @@
+#leaflet-wrapper {
+    background-color: #efefef;
+    color: #000000;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    font-family: 'DejaVuSansCondensed', sans-serif;
+}
+#leafletTitle {
+    height: 10vh;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+#leafletBody {
+    height: 90vh;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+#leafletBodyContent {
+    height: 100%;
+    overflow-y: auto;
+}

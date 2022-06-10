@@ -13,6 +13,7 @@ import 'isomorphic-fetch'
 import store from './lib/store'
 import CatalogPage from './components/CatalogPage'
 import BrowserPage from './components/BrowserPage'
+import Leaflet from './components/Leaflet'
 // import logo from './logo.svg'
 // import styles from './App.module.css'
 provideFluentDesignSystem().register(
@@ -40,6 +41,9 @@ const App = () => {
     }
     {
       store.getHash() && store.getRenderable() && <BrowserPage />
+    }
+    {
+      store.getNarrativeFact() && <Leaflet />
     }
   </>
 }

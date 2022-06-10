@@ -9,6 +9,9 @@ const initialState = {
     loading: true,
     error: false,
     visibleArcDiagram: false,
+    narrativeFact: null,
+    lang: 'Unlabelled',
+    labelRole: 'Default',
 }
 
 const [state, setState] = createStore(initialState)
@@ -29,6 +32,25 @@ const setRenderable = (newRenderable) => {
 }
 const setVisibleArcDiagram = (newVal) => {
     setState('visibleArcDiagram', () => !!newVal)
+}
+const showNarrativeFact = (r, c, q) => {
+    setState('narrativeFact', () => ({
+        rowIndex: r,
+        columnIndex: c,
+        linkbase: q,
+    }))
+}
+const hideNarrativeFact = (r, c) => {
+    setState('narrativeFact', () => null)
+}
+const narrativeFactInnerHtml = () => {
+    if (!state.narrativeFact && !state.renderable) {
+        return null
+    }
+    const { rowIndex, columnIndex, linkbase } = state.narrativeFact
+    const fact = state.renderable[linkbase].FactualQuadrant[rowIndex][columnIndex]
+    console.log(fact)
+    return fact?.[state.lang].TextBlock
 }
 
 const loadCatalog = async () => {
@@ -85,4 +107,12 @@ export default {
     setRenderable,
     getVisibleArcDiagram: () => state.visibleArcDiagram,
     setVisibleArcDiagram,
+    getNarrativeFact: () => state.narrativeFact,
+    showNarrativeFact,
+    hideNarrativeFact,
+    narrativeFactInnerHtml,
+    getLang: () => state.lang,
+    // setLang
+    getLabelRole: () => state.labelRole,
+    // setLabelRole
 }

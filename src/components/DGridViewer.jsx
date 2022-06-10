@@ -12,10 +12,36 @@ const DGridViewer = () => {
     onMount(()=> {
         const renderable = store.getRenderable()
         const dGrid = renderable.DGrid
+        if (!dGrid.RootDomains?.length) {
+            setTimeout(
+                () => {
+                    dataGrid([['']], 1, 1, dGridDiv, null)
+                },
+                100
+            )
+            return
+        }
         const rootDomain = dGrid.RootDomains[0]
         const rootDomainBlob = transformRootDomain(rootDomain)
+        const lang = 'Unlabelled'
+        const labelRole = 'Default'
         setTimeout(() => {
             dataGrid(rootDomainBlob.grid, rootDomainBlob.numFrozenRows, 1, dGridDiv, (grid, e) => {
+                if (e.cell) {
+                    const r = e.cell.rowIndex - blob.numFrozenRows
+                    const c = e.cell.columnIndex - 1
+                    if (r > -1 && c > -1) {
+                        const fact = rootDomain.FactualQuadrant[r][c]
+                        if (fact?.[lang].TextBlock) {
+                            e.items.push({
+                                title: 'Show Narrative',
+                                click: () => {
+                                    store.showNarrativeFact(r, c, 'DGrid')
+                                },
+                            })
+                        }
+                    }
+                }
                 e.items.push({
                     title: 'Visualize DRS',
                     click: () => {
