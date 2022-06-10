@@ -3,7 +3,10 @@ export default rootDomain => {
     const lang = 'Unlabelled'
     const labelRole = 'Default'
     const grid = []
-    const rootDomainName = rootDomain.Label.Default.Unlabelled
+    let primaryItems = [
+        rootDomain
+    ]
+    primaryItems.push(...rootDomain.PrimaryItems)
     const maxRow =
         rootDomain.PrimaryItems.length +
         rootDomain.ContextualMemberGrid.length +
@@ -15,7 +18,7 @@ export default rootDomain => {
             for (let j = 0; j < maxCol; j++) {
                 if (j === 0) {
                     if (i === 0) {
-                        row.push(rootDomainName)
+                        row.push('')
                     } else {
                         const voidCell = rootDomain.VoidQuadrant[i - 1]
                         if (voidCell.TypedDomain) {
@@ -79,10 +82,12 @@ export default rootDomain => {
             const index = i - rootDomain.ContextualMemberGrid.length - 1
             for (let j = 0; j < maxCol; j++) {
                 if (j === 0) {
-                    const pi = rootDomain.PrimaryItems[index]
+                    const pi = primaryItems[index]
                     let label = ''
-                    for (let i = 0; i < pi.Level; i++) {
-                        label += '    '
+                    if (index > 0) {
+                        for (let i = 0; i < pi.Level + 1; i++) {
+                            label += '    '
+                        }
                     }
                     if (pi.Label[labelRole]) {
                         label += pi.Label[labelRole][lang] ||
@@ -92,7 +97,7 @@ export default rootDomain => {
                     }
                     row.push(label)
                 } else {
-                    const fact = rootDomain.FactualQuadrant[index + 1][j - 1]
+                    const fact = rootDomain.FactualQuadrant[index][j - 1]
                     if (fact.Unlabelled.Core) {
                         if (fact[lang]) {
                             row.push(
