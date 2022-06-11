@@ -56,6 +56,7 @@ const BrowserPage = () => {
                 <fluent-button id='back-to-catalog-button' appearance='accent' onClick={
                     e => {
                         store.setHash(null)
+                        store.setRenderable(null)
                     }
                 }>Back</fluent-button>
             </div>
