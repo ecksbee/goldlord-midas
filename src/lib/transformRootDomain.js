@@ -112,8 +112,10 @@ export default rootDomain => {
                                     fact.Unlabelled.Tail
                             )
                         }
+                    } else if (fact.Unlabelled.InnerHtml) {
+                        row.push('...')
                     } else {
-                        row.push(fact.Unlabelled.CharData)
+                        row.push('')
                     }
                 }
             }

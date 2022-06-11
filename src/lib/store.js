@@ -51,7 +51,7 @@ const narrativeFactInnerHtml = () => {
     }
     const { rowIndex, columnIndex, linkbase } = state.narrativeFact
     const fact = state.renderable[linkbase].FactualQuadrant[rowIndex][columnIndex]
-    return fact?.[state.lang].TextBlock
+    return fact?.[state.lang].InnerHtml
 }
 const narrativeFactLabel = () => {
     if (!state.narrativeFact && !state.renderable) {

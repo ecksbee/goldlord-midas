@@ -20,7 +20,7 @@ const PGridViewer = () => {
                         const c = e.cell.columnIndex - 1
                         if (r > -1 && c > -1) {
                             const fact = pGrid.FactualQuadrant[r][c]
-                            if (fact?.[lang].TextBlock) {
+                            if (fact?.[lang].InnerHtml) {
                                 e.items.push({
                                     title: 'Show Narrative',
                                     click: () => {
