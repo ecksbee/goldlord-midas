@@ -97,6 +97,8 @@ const loadCatalog = async () => {
     setLoading(true)
     setError(false)
     setHash(null)
+    setCatalog(null)
+    setRenderable(null)
     let fetched
     try {
       fetched = await fetchCatalog()
@@ -116,6 +118,7 @@ const loadRenderable = async (hash) => {
     setLoading(true)
     setError(false)
     setHash(hash)
+    setRenderable(null)
     let fetched
     try {
       fetched = await fetchRenderabale(hash)
