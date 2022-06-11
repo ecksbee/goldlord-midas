@@ -12,6 +12,7 @@ const initialState = {
     narrativeFact: null,
     lang: 'Unlabelled',
     labelRole: 'Default',
+    footnotes: null,
 }
 
 const [state, setState] = createStore(initialState)
@@ -77,6 +78,117 @@ const narrativeFactPeriodHeader = () => {
         return null
     }
     const { columnIndex, linkbase, index } = state.narrativeFact
+    let periodHeader = ''
+    const dataGrid = state.renderable[linkbase]
+    switch (linkbase) {
+        case 'PGrid':
+            periodHeader = dataGrid.PeriodHeaders[columnIndex][state.lang]
+            break
+        case 'DGrid':
+            periodHeader = dataGrid.RootDomains[index].PeriodHeaders[columnIndex][state.lang]
+            break
+        case 'CGrid':
+            periodHeader = dataGrid.SummationItems[index].PeriodHeaders[columnIndex][state.lang]
+            break
+    }
+    return periodHeader
+}
+const showFootnotes = (r, c, q, i) => {
+    setState('footnotes', () => ({
+        rowIndex: r,
+        columnIndex: c,
+        linkbase: q,
+        index: i,
+    }))
+}
+const hideFootnotes = () => {
+    setState('footnotes', () => null)
+}
+const footnotesInnerHtml = () => {
+    if (!state.footnotes && !state.renderable) {
+        return null
+    }
+    const { rowIndex, columnIndex, linkbase, index } = state.footnotes
+    const superscripts = footnotesSuperscripts(state.renderable, rowIndex, columnIndex, linkbase)
+    if (!superscripts.length) {
+        return null
+    }
+    console.log(superscripts)
+    let text = '<ul>'
+    switch (linkbase) {
+        case 'PGrid':
+            state.renderable[linkbase].Footnotes.forEach(
+                (footnote, i) => {
+                    if (superscripts.includes(i + 1)) {
+                        text += `<li>${footnote}</li>`
+                    }
+                }
+            )
+            break
+        case 'DGrid':
+            state.renderable[linkbase].RootDomains[index].Footnotes.forEach(
+                (footnote, i) => {
+                    if (superscripts.includes(i + 1)) {
+                        text += `<li>${footnote}</li>`
+                    }
+                }
+            )
+            break
+        case 'CGrid':
+            state.renderable[linkbase].SummationItems[index].Footnotes.forEach(
+                (footnote, i) => {
+                    if (superscripts.includes(i + 1)) {
+                        text += `<li>${footnote}</li>`
+                    }
+                }
+            )
+            break
+    }
+    text += '</ul>'
+    return text
+}
+const footnotesSuperscripts = (renderable, rowIndex, columnIndex, linkbase, index) => {
+    let ret = []
+    switch (linkbase) {
+        case 'PGrid':
+            ret = renderable[linkbase].FootnoteGrid[rowIndex][columnIndex]
+            break
+        case 'DGrid':
+            label = renderable[linkbase].RootDomains[index].FootnoteGrid[rowIndex][columnIndex]
+            break
+        case 'CGrid':
+            label = renderable[linkbase].SummationItems[index].FootnoteGrid[rowIndex][columnIndex]
+            break
+    }
+
+    const superscripts = renderable[linkbase].FootnoteGrid[rowIndex][columnIndex]
+    return ret || []
+}
+const footnotesLabel = () => {
+    if (!state.footnotes && !state.renderable) {
+        return null
+    }
+    const { rowIndex, linkbase, index } = state.footnotes
+    let label = ''
+    const dataGrid = state.renderable[linkbase]
+    switch (linkbase) {
+        case 'PGrid':
+            label = dataGrid.IndentedLabels[rowIndex].Label[state.labelRole][state.lang]
+            break
+        case 'DGrid':
+            label = dataGrid.RootDomains[index].PrimaryItems[rowIndex].Label[state.labelRole][state.lang]
+            break
+        case 'CGrid':
+            label = dataGrid.SummationItems[index].ContributingConcepts[rowIndex].Label[state.labelRole][state.lang]
+            break
+    }
+    return label
+}
+const footnotesPeriodHeader = () => {
+    if (!state.footnotes && !state.renderable) {
+        return null
+    }
+    const { columnIndex, linkbase, index } = state.footnotes
     let periodHeader = ''
     const dataGrid = state.renderable[linkbase]
     switch (linkbase) {
@@ -160,4 +272,11 @@ export default {
     // setLang
     getLabelRole: () => state.labelRole,
     // setLabelRole
+    getFootnotes: () => state.footnotes,
+    showFootnotes,
+    hideFootnotes,
+    footnotesSuperscripts,
+    footnotesInnerHtml,
+    footnotesLabel,
+    footnotesPeriodHeader,
 }

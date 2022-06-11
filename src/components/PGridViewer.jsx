@@ -28,6 +28,15 @@ const PGridViewer = () => {
                                     },
                                 })
                             }
+                            const superscripts = store.footnotesSuperscripts(renderable, r, c, 'PGrid', null)
+                            if (superscripts.length) {
+                                e.items.push({
+                                    title: 'Show Footnotes',
+                                    click: () => {
+                                        store.showFootnotes(r, c, 'PGrid', null)
+                                    },
+                                })
+                            }
                         }
                     }
                 })

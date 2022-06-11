@@ -39,6 +39,15 @@ const CGridViewer = () => {
                                     },
                                 })
                             }
+                            const superscripts = store.footnotesSuperscripts(renderable, r, c, 'CGrid', siIndex)
+                            if (superscripts.length) {
+                                e.items.push({
+                                    title: 'Show Footnotes',
+                                    click: () => {
+                                        store.showFootnotes(r, c, 'CGrid', siIndex)
+                                    },
+                                })
+                            }
                         }
                     }
                     cGrid.SummationItems.forEach(item => {
