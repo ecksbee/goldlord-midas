@@ -41,6 +41,15 @@ const DGridViewer = () => {
                                 },
                             })
                         }
+                        const superscripts = store.footnotesSuperscripts(renderable, r, c, 'DGrid', rdIndex)
+                        if (superscripts.length) {
+                            e.items.push({
+                                title: 'Show Footnotes',
+                                click: () => {
+                                    store.showFootnotes(r, c, 'DGrid', rdIndex)
+                                },
+                            })
+                        }
                     }
                 }
                 e.items.push({

@@ -43,7 +43,10 @@ const App = () => {
       store.getHash() && store.getRenderable() && <BrowserPage />
     }
     {
-      store.getNarrativeFact() && <Leaflet />
+      store.getNarrativeFact() && !store.getFootnotes() && <Leaflet />
+    }
+    {
+      store.getFootnotes() && <Leaflet />
     }
   </>
 }
