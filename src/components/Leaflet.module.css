@@ -41,8 +41,13 @@
     display: inline;
     float: right;
 }
+.leafletRule {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
 #leafletBody {
-    height: 90vh;
+    height: calc(100vh - 6vh - 6vh - 45.5px - 45px);
     width: 100%;
     max-width: 800px;
     margin: 0 auto;

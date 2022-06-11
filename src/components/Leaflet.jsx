@@ -15,6 +15,7 @@ const Leaflet = () => {
         </div>
         <div id={styles.leafletLabel}><h2>{store.narrativeFactLabel()}</h2></div>
         <div id={styles.leafletPeriodHeader}><h3>{store.narrativeFactPeriodHeader()}</h3></div>
+        <hr class={styles.leafletRule}/>
         <div id={styles.leafletBody}>
             <div id={styles.leafletBodyContent} innerHTML={store.narrativeFactInnerHtml()} />
         </div>
