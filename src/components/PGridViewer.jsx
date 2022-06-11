@@ -24,7 +24,7 @@ const PGridViewer = () => {
                                 e.items.push({
                                     title: 'Show Narrative',
                                     click: () => {
-                                        store.showNarrativeFact(r, c, 'PGrid')
+                                        store.showNarrativeFact(r, c, 'PGrid', null)
                                     },
                                 })
                             }

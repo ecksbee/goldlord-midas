@@ -19,7 +19,8 @@ const CGridViewer = () => {
                 )
                 return
             }
-            const summationItem = cGrid.SummationItems[0]
+            const siIndex = 0
+            const summationItem = cGrid.SummationItems[siIndex]
             const blob = transformSummationItem(summationItem)
             const lang = 'Unlabelled'
             const labelRole = 'Default'
@@ -34,7 +35,7 @@ const CGridViewer = () => {
                                 e.items.push({
                                     title: 'Show Narrative',
                                     click: () => {
-                                        store.showNarrativeFact(r, c, 'CGrid')
+                                        store.showNarrativeFact(r, c, 'CGrid', siIndex)
                                     },
                                 })
                             }

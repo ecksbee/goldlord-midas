@@ -21,7 +21,8 @@ const DGridViewer = () => {
             )
             return
         }
-        const rootDomain = dGrid.RootDomains[0]
+        const rdIndex = 0
+        const rootDomain = dGrid.RootDomains[rdIndex]
         const rootDomainBlob = transformRootDomain(rootDomain)
         const lang = 'Unlabelled'
         const labelRole = 'Default'
@@ -36,7 +37,7 @@ const DGridViewer = () => {
                             e.items.push({
                                 title: 'Show Narrative',
                                 click: () => {
-                                    store.showNarrativeFact(r, c, 'DGrid')
+                                    store.showNarrativeFact(r, c, 'DGrid', rdIndex)
                                 },
                             })
                         }

@@ -9,11 +9,37 @@
     width: 100vw;
     font-family: 'DejaVuSansCondensed', sans-serif;
 }
-#leafletTitle {
-    height: 10vh;
+#leafletTitleWrapper {
+    height: 45.5px;
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
+}
+#leafletTitle {
+    display: inline;
+    float: left;
+}
+#leafletLabel {
+    height: 100%;
+    max-height: 6vh;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    overflow-wrap: break-word;
+    overflow-y: auto;
+}
+#leafletPeriodHeader {
+    height: 100%;
+    max-height: 6vh;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    overflow-wrap: break-word;
+    overflow-y: auto;
+}
+#close-narrative-fact-button {
+    display: inline;
+    float: right;
 }
 #leafletBody {
     height: 90vh;
