@@ -39,7 +39,7 @@ const PGridViewer = () => {
                             }
                         }
                     }
-                })
+                }, pGrid.FootnoteGrid, pGrid.Footnotes)
             }, 100)
         } catch (e) {
             console.error(e)

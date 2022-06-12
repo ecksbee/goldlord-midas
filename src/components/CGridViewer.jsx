@@ -61,7 +61,7 @@ const CGridViewer = () => {
                             },
                         })
                     })
-                })
+                }, summationItem.FootnoteGrid, summationItem.Footnotes)
             }, 100)
         } catch (e) {
             console.error(e)

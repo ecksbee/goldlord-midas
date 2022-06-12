@@ -69,7 +69,7 @@ const DGridViewer = () => {
                         },
                     })
                 })
-            })
+            }, rootDomain.FootnoteGrid, rootDomain.Footnotes)
         }, 100)
         setTimeout(
             () => {

@@ -1,6 +1,6 @@
 import canvasDatagrid from 'canvas-datagrid'
 
-export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu) => {
+export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu, footnoteGrid, footnotes) => {
     setTimeout(() => {
         const grid = canvasDatagrid({
             allowSorting: false, // affected by this bug https://github.com/TonyGermaneri/canvas-datagrid/issues/261
@@ -22,6 +22,34 @@ export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu) => {
         grid.data = data
         grid.frozenColumn = numFrozenCols || 1
         grid.frozenRow = numFrozenRows
+        grid.addEventListener('afterrendercell', function (e) {
+            if (!footnotes?.length) { 
+                return
+            }
+            const i = e?.cell?.rowIndex || -1
+            const j = e?.cell?.columnIndex || -1
+            if (i < numFrozenRows || j < numFrozenCols) {
+                return
+            }
+            const superscripts = footnoteGrid[i - numFrozenRows][j - numFrozenCols]
+            const cell = e.cell.value
+            if (cell === '...') {
+                return
+            }
+            if (!superscripts?.length) {
+                return
+            }
+            let newInnerHtml = `<span style="font: 10.66px CarlitoRegular;">${cell}</span><superscript style="vertical-align: super; font: 9px CarlitoRegular;">(`
+            for (let k = 0; k < superscripts.length; k++) {
+                const superscript = superscripts[k] - 1
+                newInnerHtml += superscript
+                if (k !== superscripts.length - 1) {
+                    newInnerHtml += ', '
+                }
+            }
+            newInnerHtml += `)</superscript>`
+            e.cell.innerHTML = newInnerHtml
+        })
         grid.addEventListener('beforesortcolumn', e => {
             e.preventDefault()
         })
@@ -30,19 +58,11 @@ export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu) => {
                 onContextMenu(grid, e)
             })
         }
-        grid.addEventListener('click', function (e) {
-            if (!e.cell) { return }
-            const r = e.cell.rowIndex
-            const c = e.cell.columnIndex
-            if (r >= 0 && c >= 0) {
-                //todo raise signal for textblock rendering
-                //todo also raise signal for footnotes
-            }
-        })
         const l = numFrozenCols || 1
         const columnNames = Array.from(Array(l)).map((e, i) => i.toString())
         columnNames.forEach(
             name =>  grid.fitColumnToValues(name)
         )
+        grid.draw()
     }, 100)
 }
