@@ -29,7 +29,7 @@ const DGridViewer = () => {
         setTimeout(() => {
             dataGrid(rootDomainBlob.grid, rootDomainBlob.numFrozenRows, 1, dGridDiv, (grid, e) => {
                 if (e.cell) {
-                    const r = e.cell.rowIndex - blob.numFrozenRows
+                    const r = e.cell.rowIndex - rootDomainBlob.numFrozenRows
                     const c = e.cell.columnIndex - 1
                     if (r > -1 && c > -1) {
                         const fact = rootDomain.FactualQuadrant[r][c]

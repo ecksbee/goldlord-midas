@@ -154,14 +154,12 @@ const footnotesSuperscripts = (renderable, rowIndex, columnIndex, linkbase, inde
             ret = renderable[linkbase].FootnoteGrid[rowIndex][columnIndex]
             break
         case 'DGrid':
-            label = renderable[linkbase].RootDomains[index].FootnoteGrid[rowIndex][columnIndex]
+            ret = renderable[linkbase].RootDomains[index].FootnoteGrid[rowIndex][columnIndex]
             break
         case 'CGrid':
-            label = renderable[linkbase].SummationItems[index].FootnoteGrid[rowIndex][columnIndex]
+            ret = renderable[linkbase].SummationItems[index].FootnoteGrid[rowIndex][columnIndex]
             break
     }
-
-    const superscripts = renderable[linkbase].FootnoteGrid[rowIndex][columnIndex]
     return ret || []
 }
 const footnotesLabel = () => {
