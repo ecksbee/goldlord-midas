@@ -3,6 +3,7 @@ import fetchCatalog from './fetchCatalog'
 import fetchRenderabale from './fetchRenderabale'
 
 const initialState = {
+    mode: 'concept_network_browser',
     catalog: null,
     hash: null,
     renderable: null,
@@ -16,6 +17,12 @@ const initialState = {
 }
 
 const [state, setState] = createStore(initialState)
+const showFactExpressionViewer = (newVal) => {
+    setState('mode', () => 'fact_expression_viewer')
+}
+const hideFactExpressionViewer = (newVal) => {
+    setState('mode', () => 'concept_network_browser')
+}
 const setCatalog = (newCatalog) => {
     setState('catalog', () => newCatalog)
 }
@@ -246,6 +253,8 @@ const loadRenderable = async (hash) => {
 }
 
 export default {
+    showFactExpressionViewer,
+    hideFactExpressionViewer,
     loadCatalog,
     getCatalog: () => state.catalog,
     setCatalog,
