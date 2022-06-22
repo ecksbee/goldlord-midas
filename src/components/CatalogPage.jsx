@@ -39,11 +39,11 @@ const CatalogPage = () => {
                 </For>
             </fluent-combobox>
             {
-                expressions?.keys().length && <a href='#' onClick={e => {
+                expressions && Object.keys(expressions).length && <p><a href='#' onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()
                     store.showFactExpressionViewer()
-                }}>View Inline XBRL</a>
+                }}>View Inline XBRL</a></p>
             }
             <div>
                 <fluent-button id='fetch-button' appearance='accent' onClick={
