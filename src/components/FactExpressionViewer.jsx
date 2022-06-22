@@ -9,6 +9,29 @@ const FactExpressionViewer = () => {
         const expressions = catalog.Expressions
         const ixbrldocument = store.getIxbrlDocument()
         viewerIframe.contentDocument.write(ixbrldocument)
+        const ids = Object.keys(expressions)
+        ids.forEach(
+            id => {
+                const ixtag = viewerIframe.contentWindow.document.getElementById(id)
+                let tagName = ixtag.tagName
+                const colonIndex = tagName.indexOf(':')
+                if (colonIndex > -1) {
+                    tagName = tagName.substring(colonIndex + 1)
+                }
+                switch (tagName.toLowerCase()) {
+                    case 'nonnumeric':
+                        ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                        break;
+                    case 'nonfraction':
+                        ixtag.style['border-top'] = `1pt solid orange`
+                        ixtag.style['border-bottom'] = `1pt solid orange`
+                        ixtag.style.display = `inline`
+                        break;
+                    default:
+                }
+
+            }
+        )
     })
     return <div style={{
         position: 'fixed',
