@@ -1,11 +1,13 @@
-import { onMount } from 'solid-js'
+import { onMount, createSignal } from 'solid-js'
 import store from '../lib/store'
 import styles from './FactExpressionViewer.module.css'
 
 const FactExpressionViewer = () => {
+    const [title, setTitle] = createSignal('...')
     let viewerIframe
     onMount(() => {
         const catalog = store.getCatalog()
+        setTitle(catalog.DocumentName)
         const expressions = catalog.Expressions
         const ixbrldocument = store.getIxbrlDocument()
         viewerIframe.contentDocument.write(ixbrldocument)
@@ -50,6 +52,21 @@ const FactExpressionViewer = () => {
             height: '100vh'
         }}>
             <iframe ref={viewerIframe} width='100%' height='100%' />
+        </div>
+        <div style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: '320px',
+            'min-width': '320px',
+            height: '100vh'
+        }}>
+            <div>
+                <h1>{title()}</h1>
+            </div>
+            <div>
+                <p>//put search bar here</p>
+            </div>
         </div>
     </div>
 }
