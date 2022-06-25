@@ -125,7 +125,6 @@ const footnotesInnerHtml = () => {
     if (!superscripts.length) {
         return null
     }
-    console.log(superscripts)
     let text = '<ul>'
     switch (linkbase) {
         case 'PGrid':

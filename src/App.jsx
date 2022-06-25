@@ -6,7 +6,8 @@ import {
     fluentTab,
     fluentTabPanel,
     fluentTabs,
-    fluentButton
+    fluentButton,
+    fluentTextField
 } from '@fluentui/web-components'
 import 'isomorphic-fetch'
 
@@ -23,7 +24,8 @@ provideFluentDesignSystem().register(
     fluentTab(),
     fluentTabPanel(),
     fluentTabs(),
-    fluentButton()
+    fluentButton(),
+    fluentTextField()
 )
 
 const App = () => {
