@@ -7,6 +7,7 @@ const FactExpressionViewer = () => {
     const [title, setTitle] = createSignal('...')
     const [indexes, setIndexes] = createSignal(null)
     const [results, setResults] = createSignal([])
+    const [selected, setSelected] = createSignal(null)
     let viewerIframe
     onMount(() => {
         const catalog = store.getCatalog()
@@ -85,6 +86,41 @@ const FactExpressionViewer = () => {
                 if (colonIndex > -1) {
                     tagName = tagName.substring(colonIndex + 1)
                 }
+                const expression = expressions[id]
+                ixtag.addEventListener('click', e => {
+                    setSelected(expression)
+                    ids.forEach(
+                        tempid => {
+                            const ixtag = viewerIframe.contentWindow.document.getElementById(tempid)
+                            let tagName = ixtag.tagName
+                            const colonIndex = tagName.indexOf(':')
+                            if (colonIndex > -1) {
+                                tagName = tagName.substring(colonIndex + 1)
+                            }
+                            switch (tagName.toLowerCase()) {
+                                case 'nonnumeric':
+                                    if (id === tempid) {
+                                        ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                                    } else {
+                                        ixtag.style['box-shadow'] = `unset`
+                                    }
+                                    break;
+                                case 'nonfraction':
+                                    if (id === tempid) {
+                                        ixtag.style['border-top'] = `2pt solid orange`
+                                        ixtag.style['border-bottom'] = `2pt solid orange`
+                                        ixtag.style.display = `inline`
+                                    } else {
+                                        ixtag.style['border-top'] = `unset`
+                                        ixtag.style['border-bottom'] = `unset`
+                                        ixtag.style.display = `inline`
+                                    }
+                                    break;
+                                default:
+                            }
+                        }
+                    )
+                })
                 switch (tagName.toLowerCase()) {
                     case 'nonnumeric':
                         ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
@@ -128,83 +164,85 @@ const FactExpressionViewer = () => {
             <div id={styles['title-container']}>
                 <h1>{title()}</h1>
             </div>
-            <div id={styles['search-container']}>
-                <fluent-text-field id={styles.search} appearance='filled' placeholder='Search fact expressions' 
-                    onChange={
-                        e => {
-                            const catalog = store.getCatalog()
-                            const expressions = catalog.Expressions
-                            const ids = Object.keys(expressions)
-                            if (e?.target?.value) {
-                                const labelRole = store.getLabelRole()
-                                const lang = store.getLang()
-                                const currIndex = indexes()[labelRole][lang]
-                                const res = currIndex.search(e?.target?.value) 
-                                setResults(
-                                    res || []
-                                )
-                                const highlighted = res.map( r => r.item.id)
-                                ids.forEach(
-                                    id => {
-                                        const ixtag = viewerIframe.contentWindow.document.getElementById(id)
-                                        let tagName = ixtag.tagName
-                                        const colonIndex = tagName.indexOf(':')
-                                        if (colonIndex > -1) {
-                                            tagName = tagName.substring(colonIndex + 1)
+            {
+                !selected() && <div id={styles['search-container']}>
+                    <fluent-text-field id={styles.search} appearance='filled' placeholder='Search fact expressions' 
+                        onChange={
+                            e => {
+                                const catalog = store.getCatalog()
+                                const expressions = catalog.Expressions
+                                const ids = Object.keys(expressions)
+                                if (e?.target?.value) {
+                                    const labelRole = store.getLabelRole()
+                                    const lang = store.getLang()
+                                    const currIndex = indexes()[labelRole][lang]
+                                    const res = currIndex.search(e?.target?.value) 
+                                    setResults(
+                                        res || []
+                                    )
+                                    const highlighted = res.map( r => r.item.id)
+                                    ids.forEach(
+                                        id => {
+                                            const ixtag = viewerIframe.contentWindow.document.getElementById(id)
+                                            let tagName = ixtag.tagName
+                                            const colonIndex = tagName.indexOf(':')
+                                            if (colonIndex > -1) {
+                                                tagName = tagName.substring(colonIndex + 1)
+                                            }
+                                            switch (tagName.toLowerCase()) {
+                                                case 'nonnumeric':
+                                                    if (highlighted.includes(id)) {
+                                                        ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                                                    } else {
+                                                        ixtag.style['box-shadow'] = `unset`
+                                                    }
+                                                    break;
+                                                case 'nonfraction':
+                                                    if (highlighted.includes(id)) {
+                                                        ixtag.style['border-top'] = `2pt solid orange`
+                                                        ixtag.style['border-bottom'] = `2pt solid orange`
+                                                        ixtag.style.display = `inline`
+                                                    } else {
+                                                        ixtag.style['border-top'] = `unset`
+                                                        ixtag.style['border-bottom'] = `unset`
+                                                        ixtag.style.display = `inline`
+                                                    }
+                                                    break;
+                                                default:
+                                            }
                                         }
-                                        switch (tagName.toLowerCase()) {
-                                            case 'nonnumeric':
-                                                if (highlighted.includes(id)) {
+                                    )
+                                } else {
+                                    ids.forEach(
+                                        id => {
+                                            const ixtag = viewerIframe.contentWindow.document.getElementById(id)
+                                            let tagName = ixtag.tagName
+                                            const colonIndex = tagName.indexOf(':')
+                                            if (colonIndex > -1) {
+                                                tagName = tagName.substring(colonIndex + 1)
+                                            }
+                                            switch (tagName.toLowerCase()) {
+                                                case 'nonnumeric':
                                                     ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
-                                                } else {
-                                                    ixtag.style['box-shadow'] = `unset`
-                                                }
-                                                break;
-                                            case 'nonfraction':
-                                                if (highlighted.includes(id)) {
+                                                    break;
+                                                case 'nonfraction':
                                                     ixtag.style['border-top'] = `2pt solid orange`
                                                     ixtag.style['border-bottom'] = `2pt solid orange`
                                                     ixtag.style.display = `inline`
-                                                } else {
-                                                    ixtag.style['border-top'] = `unset`
-                                                    ixtag.style['border-bottom'] = `unset`
-                                                    ixtag.style.display = `inline`
-                                                }
-                                                break;
-                                            default:
+                                                    break;
+                                                default:
+                                            }
                                         }
-                                    }
-                                )
-                            } else {
-                                ids.forEach(
-                                    id => {
-                                        const ixtag = viewerIframe.contentWindow.document.getElementById(id)
-                                        let tagName = ixtag.tagName
-                                        const colonIndex = tagName.indexOf(':')
-                                        if (colonIndex > -1) {
-                                            tagName = tagName.substring(colonIndex + 1)
-                                        }
-                                        switch (tagName.toLowerCase()) {
-                                            case 'nonnumeric':
-                                                ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
-                                                break;
-                                            case 'nonfraction':
-                                                ixtag.style['border-top'] = `2pt solid orange`
-                                                ixtag.style['border-bottom'] = `2pt solid orange`
-                                                ixtag.style.display = `inline`
-                                                break;
-                                            default:
-                                        }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
-                    }
-                />
-            </div>
+                    />
+                </div>
+            }
             <div id={styles.results}>
                 {
-                    results() && <ul id={styles['results-list']}>{results().map(
+                    !selected() && results() && <ul id={styles['results-list']}>{results().map(
                         r => {
                             const labelRole = store.getLabelRole()
                             const lang = store.getLang()
@@ -258,11 +296,131 @@ const FactExpressionViewer = () => {
                                             },
                                             5000
                                         )
+                                        setSelected(expressions[targetId])
                                     }
                                 }
                             }>{text}</li>
                         }
                     )}</ul>
+                }
+                {
+                    selected() && <>
+                        <h2>{
+                            () => {
+                                const labelRole = store.getLabelRole()
+                                const lang = store.getLang()
+                                return selected().Labels[labelRole][lang]
+                            }
+                        }</h2>
+                        <h3>{
+                            () => {
+                                const lang = store.getLang()
+                                return selected().Context.Period[lang]
+                            }
+                        }</h3>
+                        {
+                            () => {
+                                const labelRole = store.getLabelRole()
+                                const lang = store.getLang()
+                                const vq = selected().Context.VoidQuadrant
+                                const cmg = selected().Context.ContextualMemberGrid
+                                if (!vq?.length && !cmg?.[0]?.length) {
+                                    return null
+                                }
+                                return <ul>{
+                                    vq.map(
+                                        (vcell, i) => {
+                                            let vtext = ''
+                                            let cmtext = ''
+                                            if (vcell.TypedDomain) {
+                                                if (vcell.TypedDomain.Label[labelRole]) {
+                                                    const langVal =
+                                                        vcell.TypedDomain.Label[labelRole][lang]
+                                                    const unlabelledVal =
+                                                        vcell.TypedDomain.Label.Default
+                                                            .Unlabelled
+                                                    vtext = langVal || unlabelledVal
+                                                } else {
+                                                    vtext = vcell.TypedDomain.Label.Default
+                                                        .Unlabelled
+                                                }
+                                            } else {
+                                                if (vcell.Dimension.Label[labelRole]) {
+                                                    const langVal =
+                                                        vcell.Dimension.Label[labelRole][lang]
+                                                    const unlabelledVal =
+                                                        vcell.Dimension.Label.Default.Unlabelled
+                                                        vtext = langVal || unlabelledVal
+                                                } else {
+                                                    vtext = vcell.Dimension.Label.Default.Unlabelled
+                                                }
+                                            }
+                                            const memberCell = cmg[0][i]
+                                            if (memberCell.TypedMember) {
+                                                cmtext = memberCell.TypedMember
+                                            } else if (memberCell.ExplicitMember) {
+                                                if (memberCell.ExplicitMember.Label[labelRole]) {
+                                                    const explicitMember = memberCell.ExplicitMember
+                                                    const langVal =
+                                                        explicitMember.Label[labelRole][lang]
+                                                    const unlabelledVal =
+                                                        explicitMember.Label.Default.Unlabelled
+                                                    cmtext = langVal || unlabelledVal
+                                                } else {
+                                                    cmtext = memberCell.ExplicitMember.Label.Default
+                                                        .Unlabelled
+                                                }
+                                            } else {
+                                                cmtext = ''
+                                            }
+                                            return <li><h3>{vtext}</h3>: <h4>{cmtext}</h4></li>
+                                        }
+                                    )
+                                }</ul>
+                            }
+                        }
+                        <p>Measurement: {selected().Measurement || 'nil'}</p>
+                        <p>Precision: {selected().Precision}</p>
+                        {selected()?.Footnotes.length && <>
+                            <h3>Footnotes</h3>
+                            <ol>
+                                {
+                                    selected().Footnotes.map(
+                                        f => <li>{f}</li>
+                                    )
+                                }
+                            </ol>
+                        </>}
+                        <div id={styles.viewer}><fluent-button appearance='accent' onClick={
+                            e => {
+                                const catalog = store.getCatalog()
+                                const expressions = catalog.Expressions
+                                const ids = Object.keys(expressions)
+                                ids.forEach(
+                                    id => {
+                                        const ixtag = viewerIframe.contentWindow.document.getElementById(id)
+                                        let tagName = ixtag.tagName
+                                        const colonIndex = tagName.indexOf(':')
+                                        if (colonIndex > -1) {
+                                            tagName = tagName.substring(colonIndex + 1)
+                                        }
+                                        switch (tagName.toLowerCase()) {
+                                            case 'nonnumeric':
+                                                ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                                                break;
+                                            case 'nonfraction':
+                                                ixtag.style['border-top'] = `1pt solid orange`
+                                                ixtag.style['border-bottom'] = `1pt solid orange`
+                                                ixtag.style.display = `inline`
+                                                break;
+                                            default:
+                                        }
+                                    }
+                                )
+                                setSelected(null)
+                            }
+                        }>Clear</fluent-button></div>
+                    </>
                 }
             </div>
         </div>
