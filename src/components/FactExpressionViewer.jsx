@@ -9,6 +9,8 @@ const FactExpressionViewer = () => {
     const [results, setResults] = createSignal([])
     const [selected, setSelected] = createSignal(null)
     let viewerIframe
+    let highlightStacks = []
+    const highlightPrefix = 'hl-'
     onMount(() => {
         const catalog = store.getCatalog()
         setTitle(catalog.DocumentName)
@@ -19,6 +21,35 @@ const FactExpressionViewer = () => {
         const iframeStyle = viewerIframe.contentDocument.createElement('style')
         iframeHead.appendChild(iframeStyle)
         iframeStyle.appendChild(document.createTextNode(`
+            .numeric {
+                border-top: 1pt solid orange;
+                border-bottom: 1pt solid orange;
+                display: inline;
+            }
+            .narrative {
+                box-shadow: -2px 0px 0px 0px orange, 2px 0px 0px 0px orange;
+            }
+            .narrative::before {
+                content: "  ";
+                background-color: orange;
+            }
+            .narrative::after {
+                content: "  ";
+                background-color: orange;
+            }
+            .narrative-highlight {
+                z-index: 99999;
+                position: absolute;
+                left: 0;
+                background-image: linear-gradient(to right, rgba(255,165,0,0), rgba(255,165,0,0.5));
+            }
+            .narrative-focused {
+                z-index: -99999;
+                position: fixed;
+                left: 0;
+                width: 100vw;
+                background-image: linear-gradient(to right, rgba(255,165,0,0), rgba(255,165,0,0.5));
+            }
             .alert-fact {
                 animation-name: alert-fact;
                 animation-duration: 4s;
@@ -44,6 +75,7 @@ const FactExpressionViewer = () => {
                 }
             }
         `))
+        iframeHead.appendChild(iframeStyle)
         const ids = Object.keys(expressions)
         const searchDocs = ids.map(
             id => {
@@ -100,20 +132,22 @@ const FactExpressionViewer = () => {
                             switch (tagName.toLowerCase()) {
                                 case 'nonnumeric':
                                     if (id === tempid) {
-                                        ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                                        ixtag.classList.add('narrative')
+                                        const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
+                                        narrativeHighlight.style.width = `100vw`
+                                        narrativeHighlight.style.display = `block`
                                     } else {
-                                        ixtag.style['box-shadow'] = `unset`
+                                        ixtag.classList.remove('narrative')
+                                        const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + tempid)
+                                        narrativeHighlight.style.width = `0`
+                                        narrativeHighlight.style.display = `none`
                                     }
                                     break;
                                 case 'nonfraction':
                                     if (id === tempid) {
-                                        ixtag.style['border-top'] = `2pt solid orange`
-                                        ixtag.style['border-bottom'] = `2pt solid orange`
-                                        ixtag.style.display = `inline`
+                                        ixtag.classList.add('numeric')
                                     } else {
-                                        ixtag.style['border-top'] = `unset`
-                                        ixtag.style['border-bottom'] = `unset`
-                                        ixtag.style.display = `inline`
+                                        ixtag.classList.remove('numeric')
                                     }
                                     break;
                                 default:
@@ -124,12 +158,27 @@ const FactExpressionViewer = () => {
                 })
                 switch (tagName.toLowerCase()) {
                     case 'nonnumeric':
-                        ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                        ixtag.classList.add('narrative')
+                        const iframeBody = viewerIframe.contentDocument.body
+                        const narrativeHighlight = viewerIframe.contentDocument.createElement('div')
+                        const top = ixtag.getBoundingClientRect().top
+                        let bottom = ixtag.getBoundingClientRect().bottom
+                        let continuedat = ixtag.getAttribute('continuedat')
+                        while (continuedat) {
+                            let cont = viewerIframe.contentWindow.document.getElementById(continuedat)
+                            bottom = cont.getBoundingClientRect().bottom
+                            continuedat = cont.getAttribute('continuedat')
+                        }
+                        narrativeHighlight.id = highlightPrefix + id
+                        narrativeHighlight.classList.add('narrative-highlight')
+                        narrativeHighlight.style.top = `${top}px`
+                        narrativeHighlight.style.height = `${bottom - top}px`
+                        narrativeHighlight.style.width = `0`
+                        narrativeHighlight.style.display = `none`
+                        iframeBody.appendChild(narrativeHighlight)
                         break;
                     case 'nonfraction':
-                        ixtag.style['border-top'] = `1pt solid orange`
-                        ixtag.style['border-bottom'] = `1pt solid orange`
-                        ixtag.style.display = `inline`
+                        ixtag.classList.add('numeric')
                         break;
                     default:
                 }
@@ -192,21 +241,22 @@ const FactExpressionViewer = () => {
                                             }
                                             switch (tagName.toLowerCase()) {
                                                 case 'nonnumeric':
+                                                    const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
                                                     if (highlighted.includes(id)) {
-                                                        ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                                                        ixtag.classList.add('narrative')
+                                                        narrativeHighlight.style.width = `100vw`
+                                                        narrativeHighlight.style.display = `block`
                                                     } else {
-                                                        ixtag.style['box-shadow'] = `unset`
+                                                        ixtag.classList.remove('narrative')
+                                                        narrativeHighlight.style.width = `0`
+                                                        narrativeHighlight.style.display = `none`
                                                     }
                                                     break;
                                                 case 'nonfraction':
                                                     if (highlighted.includes(id)) {
-                                                        ixtag.style['border-top'] = `2pt solid orange`
-                                                        ixtag.style['border-bottom'] = `2pt solid orange`
-                                                        ixtag.style.display = `inline`
+                                                        ixtag.classList.add('numeric')
                                                     } else {
-                                                        ixtag.style['border-top'] = `unset`
-                                                        ixtag.style['border-bottom'] = `unset`
-                                                        ixtag.style.display = `inline`
+                                                        ixtag.classList.remove('numeric')
                                                     }
                                                     break;
                                                 default:
@@ -224,12 +274,13 @@ const FactExpressionViewer = () => {
                                             }
                                             switch (tagName.toLowerCase()) {
                                                 case 'nonnumeric':
-                                                    ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                                                    const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
+                                                    ixtag.classList.add('narrative')
+                                                    narrativeHighlight.style.width = `0`
+                                                    narrativeHighlight.style.display = `none`
                                                     break;
                                                 case 'nonfraction':
-                                                    ixtag.style['border-top'] = `2pt solid orange`
-                                                    ixtag.style['border-bottom'] = `2pt solid orange`
-                                                    ixtag.style.display = `inline`
+                                                    ixtag.classList.add('numeric')
                                                     break;
                                                 default:
                                             }
@@ -265,23 +316,24 @@ const FactExpressionViewer = () => {
                                             }
                                             switch (tagName.toLowerCase()) {
                                                 case 'nonnumeric':
+                                                    const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
                                                     if (targetId === id) {
-                                                        ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                                                        ixtag.classList.add('narrative')
                                                         target = ixtag
+                                                        narrativeHighlight.style.width = `100vw`
+                                                        narrativeHighlight.style.display = `block`
                                                     } else {
-                                                        ixtag.style['box-shadow'] = `unset`
+                                                        ixtag.classList.remove('narrative')
+                                                        narrativeHighlight.style.width = `0`
+                                                        narrativeHighlight.style.display = `none`
                                                     }
                                                     break;
                                                 case 'nonfraction':
                                                     if (targetId === id) {
-                                                        ixtag.style['border-top'] = `2pt solid orange`
-                                                        ixtag.style['border-bottom'] = `2pt solid orange`
-                                                        ixtag.style.display = `inline-block`
+                                                        ixtag.classList.add('numeric')
                                                         target = ixtag
                                                     } else {
-                                                        ixtag.style['border-top'] = `unset`
-                                                        ixtag.style['border-bottom'] = `unset`
-                                                        ixtag.style.display = `inline`
+                                                        ixtag.classList.remove('numeric')
                                                     }
                                                     break;
                                                 default:
@@ -407,12 +459,13 @@ const FactExpressionViewer = () => {
                                         }
                                         switch (tagName.toLowerCase()) {
                                             case 'nonnumeric':
-                                                ixtag.style['box-shadow'] = `-2px 0px 0px 0px orange, 2px 0px 0px 0px orange`
+                                                const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
+                                                ixtag.classList.add('narrative')
+                                                narrativeHighlight.style.width = `0`
+                                                narrativeHighlight.style.display = `none`
                                                 break;
                                             case 'nonfraction':
-                                                ixtag.style['border-top'] = `1pt solid orange`
-                                                ixtag.style['border-bottom'] = `1pt solid orange`
-                                                ixtag.style.display = `inline`
+                                                ixtag.classList.add('numeric')
                                                 break;
                                             default:
                                         }
