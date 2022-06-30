@@ -1,10 +1,13 @@
 import { createStore } from 'solid-js/store'
 import fetchCatalog from './fetchCatalog'
 import fetchRenderabale from './fetchRenderabale'
-
+import fetchIxbrlDocument from './fetchIxbrlDocument'
+ 
 const initialState = {
+    mode: 'concept_network_browser',
     catalog: null,
     hash: null,
+    ixbrlDocument: null,
     renderable: null,
     loading: true,
     error: false,
@@ -16,6 +19,12 @@ const initialState = {
 }
 
 const [state, setState] = createStore(initialState)
+const showFactExpressionViewer = (newVal) => {
+    setState('mode', () => 'fact_expression_viewer')
+}
+const hideFactExpressionViewer = (newVal) => {
+    setState('mode', () => 'concept_network_browser')
+}
 const setCatalog = (newCatalog) => {
     setState('catalog', () => newCatalog)
 }
@@ -27,6 +36,9 @@ const setError = (newVal) => {
 }
 const setHash = (newVal) => {
     setState('hash', () => newVal)
+}
+const setIxbrlDocument = (ixbrlDocument) => {
+    setState('ixbrlDocument', () => ixbrlDocument)
 }
 const setRenderable = (newRenderable) => {
     setState('renderable', () => newRenderable)
@@ -113,7 +125,6 @@ const footnotesInnerHtml = () => {
     if (!superscripts.length) {
         return null
     }
-    console.log(superscripts)
     let text = '<ul>'
     switch (linkbase) {
         case 'PGrid':
@@ -224,6 +235,24 @@ const loadCatalog = async () => {
       return
     }
 }
+const loadIxbrlDocument = async (documentname) => {
+    setLoading(true)
+    setError(false)
+    setIxbrlDocument(null)
+    let fetched
+    try {
+      fetched = await fetchIxbrlDocument(documentname)
+      setLoading(false)
+      setError(false)
+      setIxbrlDocument(fetched)
+    } catch (e) {
+      console.error(e)
+      setLoading(false)
+      setError(true)
+      setIxbrlDocument(null)
+      return
+    }
+}
 const loadRenderable = async (hash) => {
     setLoading(true)
     setError(false)
@@ -246,6 +275,9 @@ const loadRenderable = async (hash) => {
 }
 
 export default {
+    isFactExpressionViewerVisible: () => state.mode === 'fact_expression_viewer',
+    showFactExpressionViewer,
+    hideFactExpressionViewer,
     loadCatalog,
     getCatalog: () => state.catalog,
     setCatalog,
@@ -258,6 +290,9 @@ export default {
     loadRenderable,
     getRenderable: () => state.renderable,
     setRenderable,
+    loadIxbrlDocument,
+    getIxbrlDocument: () => state.ixbrlDocument,
+    setIxbrlDocument,
     getVisibleArcDiagram: () => state.visibleArcDiagram,
     setVisibleArcDiagram,
     getNarrativeFact: () => state.narrativeFact,

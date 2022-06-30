@@ -7,6 +7,7 @@ import commonStyles from './Common.module.css'
 const title = 'Concept Network Browser'
 const CatalogPage = () => {
     const catalog = store.getCatalog()
+    const expressions = catalog.Expressions
     const subjects = catalog.Subjects
     const rsets = catalog.RelationshipSets
     const initSubject = subjects[0].Entity.Scheme + '/' + subjects[0].Entity.CharData
@@ -37,6 +38,13 @@ const CatalogPage = () => {
                     }}
                 </For>
             </fluent-combobox>
+            {
+                expressions && Object.keys(expressions).length && <p><a href='#' onClick={e => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    store.showFactExpressionViewer()
+                }}>View Inline XBRL</a></p>
+            }
             <div>
                 <fluent-button id='fetch-button' appearance='accent' onClick={
                     async e => {
