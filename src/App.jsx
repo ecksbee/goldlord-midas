@@ -15,8 +15,8 @@ import store from './lib/store'
 import CatalogPage from './components/CatalogPage'
 import BrowserPage from './components/BrowserPage'
 import Leaflet from './components/Leaflet'
+import logo from './logo.svg'
 import FactExpressionViewer from './components/FactExpressionViewer'
-// import logo from './logo.svg'
 // import styles from './App.module.css'
 provideFluentDesignSystem().register(
     fluentCombobox(),
@@ -41,6 +41,8 @@ const App = () => {
       }
   })
   return <>
+    {store.getLoading() && <div><img src={logo}></img></div>}
+    {store.getError() && <div>error!</div>}
     {
       store.getLoading() && !store.getError() && <div>loading...</div>
     }
