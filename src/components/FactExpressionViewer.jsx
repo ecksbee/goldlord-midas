@@ -120,6 +120,7 @@ const FactExpressionViewer = () => {
                             }
                         }
                     )
+                    e.stopPropagation()
                 })
                 switch (tagName.toLowerCase()) {
                     case 'nonnumeric':
