@@ -26,6 +26,10 @@ const FactExpressionViewer = () => {
                 border-bottom: 1pt solid orange;
                 display: inline;
             }
+            .numeric:hover {
+                border-top: 3pt solid orange;
+                border-bottom: 3pt solid orange;
+            }
             .narrative {
                 box-shadow: -2px 0px 0px 0px orange, 2px 0px 0px 0px orange;
             }
@@ -41,13 +45,6 @@ const FactExpressionViewer = () => {
                 z-index: 99999;
                 position: absolute;
                 left: 0;
-                background-image: linear-gradient(to right, rgba(255,165,0,0), rgba(255,165,0,0.5));
-            }
-            .narrative-focused {
-                z-index: -99999;
-                position: fixed;
-                left: 0;
-                width: 100vw;
                 background-image: linear-gradient(to right, rgba(255,165,0,0), rgba(255,165,0,0.5));
             }
             .alert-fact {
