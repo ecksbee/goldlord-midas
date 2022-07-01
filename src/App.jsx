@@ -17,7 +17,7 @@ import BrowserPage from './components/BrowserPage'
 import Leaflet from './components/Leaflet'
 import logo from './logo.svg'
 import FactExpressionViewer from './components/FactExpressionViewer'
-// import styles from './App.module.css'
+import styles from './App.module.css'
 provideFluentDesignSystem().register(
     fluentCombobox(),
     fluentOption(),
@@ -41,14 +41,8 @@ const App = () => {
       }
   })
   return <>
-    {store.getLoading() && <div><img src={logo}></img></div>}
+    {store.getLoading() && !store.getError() && <div id={styles['splash-screen']}><img style={{height: '100%', width: '100%'}} src={logo} /></div>}
     {store.getError() && <div>error!</div>}
-    {
-      store.getLoading() && !store.getError() && <div>loading...</div>
-    }
-    {
-      store.getError() && <div>error!</div>
-    }
     {
       !store.getLoading() && !store.getError() && <>
         {

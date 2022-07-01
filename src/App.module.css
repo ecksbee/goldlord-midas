@@ -1,0 +1,25 @@
+#splash-screen {
+    height: 100vh;
+    width: 100vw;
+    animation-name: pulsing-logo;
+    animation-duration: 4s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes pulsing-logo {
+    0%   {
+        filter: blur(0);
+    }
+    25%  {
+        filter: blur(1.1rem);
+    }
+    50%  {
+        filter: blur(0.1rem);
+    }
+    75%  {
+        filter: blur(1.5rem);
+    }
+    100% {
+        filter: blur(0);
+    }
+}
