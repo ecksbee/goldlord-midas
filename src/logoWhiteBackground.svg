@@ -15,7 +15,7 @@
    version="1.1"
    id="svg1044"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="logo.svg">
+   sodipodi:docname="logoWhiteBackground.svg">
   <defs
      id="defs1038" />
   <sodipodi:namedview
@@ -59,6 +59,13 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-27.101414,-34.494471)">
+    <rect
+       style="fill:#fffffd;fill-opacity:1;stroke:none;stroke-width:0.486;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2207"
+       width="171.97917"
+       height="171.97917"
+       x="27.101412"
+       y="34.494469" />
     <path
        sodipodi:nodetypes="ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
        inkscape:connector-curvature="0"
