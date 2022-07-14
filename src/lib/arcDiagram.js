@@ -96,11 +96,11 @@ export default (data, mount) => {
         .style('text-anchor', 'end')
         .attr(
             'transform',
-            d => `translate(${x(d.name)},${height / 2 - 15}) rotate(-45)`
+            d => `translate(${x(d.name)},${height / 2 - 15}) rotate(-35)`
         )
         .style('font-size', '50%')
-        .style('font-family', 'CarlitoRegular')
-        .attr('stroke', 'white')
+        .style('font-family', 'CourierPrime')
+        .attr('stroke', 'gray')
     let source = []
     let target = []
     labels
@@ -120,9 +120,9 @@ export default (data, mount) => {
             )
             labels.style('font-size', labelD => {
                 if (source.includes(labelD.id) || target.includes(labelD.id)) {
-                    return '100%'
+                    return '55%'
                 }
-                return '10%'
+                return '50%'
             })
         })
         .on('mouseout', d => {
