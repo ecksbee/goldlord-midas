@@ -1,5 +1,8 @@
 import * as d3 from 'd3'
 
+//reference https://d3-graph-gallery.com/graph/arc_highlight.html for sample code.
+//it would be nice to go vertical! for example: see https://observablehq.com/@d3/arc-diagram.
+
 const charWidth = 7
 export default (data, mount) => {
     d3.select(mount)

@@ -2,7 +2,7 @@ import { onMount } from 'solid-js'
 
 import store from '../lib/store'
 import dataGrid from '../lib/dataGrid'
-import arcDiagram from '../lib/arcDiagram'
+import arcDiagram from '../lib/arcDiagramVertical'
 import transformRootDomain from '../lib/transformRootDomain'
 import transformDRS from '../lib/transformDRS'
 
@@ -86,8 +86,8 @@ const DGridViewer = () => {
         <div id='arc-diagram-wrapper' style={{
             position: 'fixed',
             'z-index': 9999,
-            'background-color': 'black',
-            color: 'white',
+            'background-color': 'white',
+            color: 'black',
             top: 0,
             left: 0,
             height: '100vh',
@@ -99,7 +99,7 @@ const DGridViewer = () => {
                         store.setVisibleArcDiagram(false)
                     }
                 }>Back</fluent-button>
-            <div id='arc-diagram' ref={arcDiagramDiv} />
+            <svg id='arc-diagram' ref={arcDiagramDiv} width='100vw' height='100vh'/>
         </div>
     </>
 }
