@@ -103,9 +103,9 @@ export default (data, mount) => {
         .attr("y", d => y(d.id) - step / 2)
         .on("mouseover", d => {
             svg.classed("hover", true);
-            label.classed("primary", n => n === d);
-            label.classed("secondary", n => n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
-            path.classed("primary", l => l.source === d || l.target === d).filter(".primary").raise();
+            label.classed("primary", n => n.id === d.target.__data__.id);
+            label.classed("secondary", n => n.sourceLinks.some(l => l.target.id === d.target.__data__.id) || n.targetLinks.some(l => l.source.id === d.target.__data__.id));
+            path.classed("primary", l => l.source.id === d.target.__data__.id || l.target.id === d.target.__data__.id).filter(".primary").raise();
         })
         .on("mouseout", d => {
             svg.classed("hover", false);
