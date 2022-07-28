@@ -99,7 +99,7 @@ const DGridViewer = () => {
                         store.setVisibleArcDiagram(false)
                     }
                 }>Back</fluent-button>
-            <svg id='arc-diagram' ref={arcDiagramDiv} width='100vw' height='100vh'/>
+            <svg id='arc-diagram' ref={arcDiagramDiv} width='100vw' height='100vh'></svg>
         </div>
     </>
 }

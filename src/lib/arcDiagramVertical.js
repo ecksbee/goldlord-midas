@@ -1,5 +1,11 @@
 import * as d3 from 'd3'
-//reference https://observablehq.com/@d3/arc-diagram.
+// for arc diagram, reference https://observablehq.com/@d3/arc-diagram.
+// for pan and zoom, reference the link below.
+// https://www.d3indepth.com/zoom-and-pan/#:~:text=%20There%E2%80%99s%20three%20steps%20to%20add%20zoom%20and,receives%20the%20zoom%20and%20pan%20gestures%20More%20
+
+
+
+
 export default (data, mount) => {
     const margin = {top: 20, right: 20, bottom: 20, left: 100}
     const step = 14
@@ -30,6 +36,15 @@ export default (data, mount) => {
     
       return {nodes, links};
     })()
+
+    function handleZoom(e) {
+      d3.select('g#wrapper')
+      .attr('transform', e.transform);
+     }
+     
+     let zoom = d3.zoom()
+       .on('zoom', handleZoom);
+
     function arc(d) {
         const y1 = d.source.y;
         const y2 = d.target.y;
@@ -37,10 +52,16 @@ export default (data, mount) => {
         return `M${margin.left},${y1}A${r},${r} 0,0,${y1 < y2 ? 1 : 0} ${margin.left},${y2}`;
       }
 
-    const svg = d3.select(mount)
+    const svgmount = d3.select(mount).call(zoom)
+    const svg = svgmount.append("g").attr('id','wrapper')
       
     svg.append("style").text(`
       
+      svg#arc-diagram text {
+        font-family: CourierPrime;
+
+      }
+
       .hover path {
         stroke: #ccc;
       }
