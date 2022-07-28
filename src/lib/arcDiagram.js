@@ -1,5 +1,8 @@
 import * as d3 from 'd3'
 
+//reference https://d3-graph-gallery.com/graph/arc_highlight.html for sample code.
+//it would be nice to go vertical! for example: see https://observablehq.com/@d3/arc-diagram.
+
 const charWidth = 7
 export default (data, mount) => {
     d3.select(mount)
@@ -96,11 +99,11 @@ export default (data, mount) => {
         .style('text-anchor', 'end')
         .attr(
             'transform',
-            d => `translate(${x(d.name)},${height / 2 - 15}) rotate(-45)`
+            d => `translate(${x(d.name)},${height / 2 - 15}) rotate(-35)`
         )
         .style('font-size', '50%')
-        .style('font-family', 'CarlitoRegular')
-        .attr('stroke', 'white')
+        .style('font-family', 'CourierPrime')
+        .attr('stroke', 'gray')
     let source = []
     let target = []
     labels
@@ -120,9 +123,9 @@ export default (data, mount) => {
             )
             labels.style('font-size', labelD => {
                 if (source.includes(labelD.id) || target.includes(labelD.id)) {
-                    return '100%'
+                    return '55%'
                 }
-                return '10%'
+                return '50%'
             })
         })
         .on('mouseout', d => {
