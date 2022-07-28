@@ -12,4 +12,5 @@ export default defineConfig({
       '/folders': 'http://localhost:8080',
     }
   },
+  base: '',
 });
