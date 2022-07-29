@@ -111,8 +111,14 @@ export default pGrid => {
                 }
             }
         }
+        row.push('')
         grid.push(row)
     }
+    const last = []
+    for (let j = 0; j < maxCol + 1; j++) {
+        last.push('')
+    }
+    grid.push(last)
     return {
         grid,
         numFrozenRows: pGrid.VoidQuadrant.length + 1

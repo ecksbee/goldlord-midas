@@ -118,11 +118,12 @@ export default summationItem => {
                 }
             }
         }
+        row.push('')
         grid.push(row)
     }
     let row = []
     const factualQuadrantLastIndex = summationItem.FactualQuadrant.length - 1
-    for (let k = 0; k < grid[0].length; k++) {
+    for (let k = 0; k < grid[0].length - 1; k++) {
         if (k === 0) {
             row.push('=')
         } else if (k === 1) {
@@ -150,7 +151,13 @@ export default summationItem => {
         }
     }
 
+    row.push('')
     grid.push(row)
+    let last = []
+    for (let k = 0; k < grid[0].length; k++) {
+        last.push('')
+    }
+    grid.push(last)
     return {
         grid,
         numFrozenRows: summationItem.VoidQuadrant.length + 1

@@ -120,8 +120,14 @@ export default rootDomain => {
                 }
             }
         }
+        row.push('')
         grid.push(row)
     }
+    const last = []
+    for (let j = 0; j < maxCol + 1; j++) {
+        last.push('')
+    }
+    grid.push(last)
     return {
         grid,
         numFrozenRows: rootDomain.VoidQuadrant.length + 1
