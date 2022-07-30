@@ -7,7 +7,12 @@ import * as d3 from 'd3'
 
 
 export default (data, mount) => {
-    const margin = {top: 20, right: 20, bottom: 20, left: 100}
+    const win = window,
+      doc = document,
+      docElem = doc.documentElement,
+      body = doc.getElementsByTagName('body')[0],
+      width = win.innerWidth || docElem.clientWidth || body.clientWidth
+    const margin = {top: 20, right: 20, bottom: 20, left: width/2}
     const step = 14
     const height = (data.nodes.length - 1) * step + margin.top + margin.bottom
     const y = d3.scalePoint(data.nodes.map(d => d.id).sort(d3.ascending), [margin.top, height - margin.bottom])
