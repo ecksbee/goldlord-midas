@@ -26,13 +26,22 @@
         src: url("/CourierPrime/CourierPrime-Regular.ttf") format("truetype");
       }
 
+      #branding {
+        font-size: 10pt;
+        position: fixed;
+        z-index: 10000;
+        bottom: 0;
+        right: 0;
+        margin: 0 .5% .5% 0;
+      }
+
     </style>
     <title>TeleFacts</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-
+    <div id="branding">powered by TeleFacts</div>
     <script src="/src/index.jsx" type="module"></script>
   </body>
 </html>
