@@ -209,7 +209,13 @@ const FactExpressionViewer = () => {
             height: '96vh',
         }}>
             <div id={styles['title-container']}>
-                <h1>{title()}</h1>
+                <h1>{title()}
+                <a href='#' onClick={e => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    store.hideFactExpressionViewer()
+                }}>[X]</a>
+                </h1>
             </div>
             {
                 !selected() && <div id={styles['search-container']}>
