@@ -206,7 +206,7 @@ const FactExpressionViewer = () => {
             right: 0,
             width: '320px',
             'min-width': '320px',
-            height: '100vh',
+            height: '96vh',
         }}>
             <div id={styles['title-container']}>
                 <h1>{title()}</h1>
