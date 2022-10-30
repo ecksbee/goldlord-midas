@@ -121,7 +121,7 @@ const footnotesInnerHtml = () => {
         return null
     }
     const { rowIndex, columnIndex, linkbase, index } = state.footnotes
-    const superscripts = footnotesSuperscripts(state.renderable, rowIndex, columnIndex, linkbase)
+    const superscripts = footnotesSuperscripts(state.renderable, rowIndex, columnIndex, linkbase, index)
     if (!superscripts.length) {
         return null
     }

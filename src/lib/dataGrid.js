@@ -31,7 +31,15 @@ export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu, footno
             if (i < numFrozenRows || j < numFrozenCols) {
                 return
             }
-            const superscripts = footnoteGrid[i - numFrozenRows][j - numFrozenCols]
+            if (footnoteGrid.length < (i - numFrozenRows)) {
+                return
+            }
+            let superscripts = []
+            try {
+                superscripts = footnoteGrid[i - numFrozenRows][j - numFrozenCols]
+            } catch (e) {
+                console.error(e)
+            }
             const cell = e.cell.value
             if (cell === '...') {
                 return
@@ -39,7 +47,7 @@ export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu, footno
             if (!superscripts?.length) {
                 return
             }
-            let newInnerHtml = `<span style="font: 10.66px CarlitoRegular;">${cell}</span><superscript style="vertical-align: super; font: 9px CarlitoRegular;">(`
+            let newInnerHtml = `<span style="font: 10.66px CarlitoRegular; padding: 0 2%;">${cell}</span><superscript style="vertical-align: super; font: 9px CarlitoRegular;">(`
             for (let k = 0; k < superscripts.length; k++) {
                 const superscript = superscripts[k] - 1
                 newInnerHtml += superscript
