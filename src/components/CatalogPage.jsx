@@ -7,7 +7,7 @@ import commonStyles from './Common.module.css'
 const title = 'Concept Network Browser'
 const CatalogPage = () => {
     const catalog = store.getCatalog()
-    const expressions = catalog.Expressions
+    const name = catalog.DocumentName
     const subjects = catalog.Subjects
     const rsets = catalog.RelationshipSets
     const initSubject = subjects[0].Entity.Scheme + '/' + subjects[0].Entity.CharData
@@ -56,7 +56,7 @@ const CatalogPage = () => {
                 }>Browse</fluent-button>
             </div>
             {
-                expressions && Object.keys(expressions).length && <p><a href='#' onClick={e => {
+                name && name.length && <p><a href='#' onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()
                     store.showFactExpressionViewer()
