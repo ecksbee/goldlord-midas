@@ -81,6 +81,8 @@ const FactExpressionViewer = () => {
         try {
             let thisNode = nonFractions.iterateNext()
             while (thisNode) {
+                let name = thisNode.getAttribute('name')
+                let contextref = thisNode.getAttribute('contextref')
                 thisNode.addEventListener('click', ev => {
                     const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                     const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
@@ -118,7 +120,8 @@ const FactExpressionViewer = () => {
                     offNumerics.forEach(mynode => {
                         mynode.classList.remove('numeric')
                     })
-                    thisNode.classList.add('numeric')
+                    const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
+                    targetNode.classList.add('numeric')
                     ev.stopPropagation()
                 })
                 allNonFractions.push(thisNode)
