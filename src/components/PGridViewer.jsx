@@ -6,9 +6,9 @@ import transformPGrid from '../lib/transformPGrid'
 
 const PGridViewer = () => {
     let pGridDiv
-    onMount(async ()=> {
+    onMount(()=> {
         try {
-            const renderable = await store.getRenderable()
+            const renderable = store.getRenderable()
             const pGrid = renderable.PGrid
             const blob = transformPGrid(pGrid)
             const lang = 'Unlabelled'

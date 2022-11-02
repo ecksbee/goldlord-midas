@@ -1,6 +1,7 @@
 import { onMount, createSignal } from 'solid-js'
 import store from '../lib/store'
 import styles from './FactExpressionViewer.module.css'
+import canvasDatagrid from 'canvas-datagrid'
 
 async function digestMessage(message) {
   const msgUint8 = new TextEncoder().encode(message)                           // encode as (utf-8) Uint8Array
@@ -10,12 +11,125 @@ async function digestMessage(message) {
   return hashHex;
 }
 
+function renderExpression(expressable, theCanvasGrid) {
+    const labelRole = store.getLabelRole()
+    const lang = store.getLang()
+    let datagrid = []
+    const period = expressable.Context.Period[lang]
+    datagrid.push([ '', period, ''])
+    const vq = expressable.Context.VoidQuadrant
+    const cmg = expressable.Context.ContextualMemberGrid
+    const dimensionless = !vq?.length && !cmg?.[0]?.length
+    if (!dimensionless) {
+        vq.forEach((vcell, i) => {
+                let vtext = ''
+                let cmtext = ''
+                if (vcell.TypedDomain) {
+                    if (vcell.TypedDomain.Label[labelRole]) {
+                        const langVal =
+                            vcell.TypedDomain.Label[labelRole][lang]
+                        const unlabelledVal =
+                            vcell.TypedDomain.Label.Default
+                                .Unlabelled
+                        vtext = langVal || unlabelledVal
+                    } else {
+                        vtext = vcell.TypedDomain.Label.Default
+                            .Unlabelled
+                    }
+                } else {
+                    if (vcell.Dimension.Label[labelRole]) {
+                        const langVal =
+                            vcell.Dimension.Label[labelRole][lang]
+                        const unlabelledVal =
+                            vcell.Dimension.Label.Default.Unlabelled
+                            vtext = langVal || unlabelledVal
+                    } else {
+                        vtext = vcell.Dimension.Label.Default.Unlabelled
+                    }
+                }
+                const memberCell = cmg[0][i]
+                if (memberCell.TypedMember) {
+                    cmtext = memberCell.TypedMember
+                } else if (memberCell.ExplicitMember) {
+                    if (memberCell.ExplicitMember.Label[labelRole]) {
+                        const explicitMember = memberCell.ExplicitMember
+                        const langVal =
+                            explicitMember.Label[labelRole][lang]
+                        const unlabelledVal =
+                            explicitMember.Label.Default.Unlabelled
+                        cmtext = langVal || unlabelledVal
+                    } else {
+                        cmtext = memberCell.ExplicitMember.Label.Default
+                            .Unlabelled
+                    }
+                } else {
+                    cmtext = ''
+                }
+                datagrid.push([vtext, cmtext, ''])
+            })
+    }
+    const concept = expressable.Labels[labelRole][lang]
+    const fact = expressable.Expression
+    let factvalue = ''
+    if (fact.Unlabelled.Core) {
+        if (fact[lang]) {
+            factvalue =
+                fact[lang].Head +
+                    fact[lang].Core +
+                    fact[lang].Tail
+        } else {
+            factvalue =
+                fact.Unlabelled.Head +
+                    fact.Unlabelled.Core +
+                    fact.Unlabelled.Tail
+        }
+    } else if (fact.Unlabelled.InnerHtml) {
+        factvalue = '...'
+    } else {
+        factvalue = ''
+    }
+    datagrid.push([concept, factvalue, ''])
+    theCanvasGrid.data = datagrid
+    theCanvasGrid.draw()
+}
+
+function mountFactTable(facttablediv, cb) {
+    setTimeout(() => {
+        const grid = canvasDatagrid({
+            allowSorting: false, // affected by this bug https://github.com/TonyGermaneri/canvas-datagrid/issues/261
+            allowColumnReordering: false,
+            autoResizeColumns: false,
+            editable: false,
+            allowFreezingColumns: false,
+            allowFreezingRows: false,
+            style: {
+                cellFont: '10.66px CarlitoRegular',
+                columnHeaderCellFont: '12px CarlitoRegular',
+                rowHeaderCellFont: '12px CarlitoRegular',
+                activeCellFont: '10.66px CarlitoRegular',
+            }
+        })
+        facttablediv.appendChild(grid)
+        grid.style.height = '90vh'
+        grid.style.width = '98%'
+        grid.data = [['', ''],['', '']]
+        grid.addEventListener('beforesortcolumn', e => {
+            e.preventDefault()
+        })
+        grid.draw()
+        cb(grid)
+    }, 100)
+}
+
 const FactExpressionViewer = () => {
     const [title, setTitle] = createSignal('...')
-    const [selected, setSelected] = createSignal(null)
-    let viewerIframe
+    const [getGrid, setGrid] = createSignal(null)
+    let viewerIframe, facttablediv
     const highlightPrefix = 'hl-'
     onMount(async () => {
+        mountFactTable(facttablediv, (grid) => {
+            setGrid(grid)
+        })
         const catalog = store.getCatalog()
         setTitle(catalog.DocumentName)
         const ixbrldocument = store.getIxbrlDocument()
@@ -83,7 +197,7 @@ const FactExpressionViewer = () => {
             while (thisNode) {
                 let name = thisNode.getAttribute('name')
                 let contextref = thisNode.getAttribute('contextref')
-                thisNode.addEventListener('click', ev => {
+                thisNode.addEventListener('click', async ev => {
                     const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                     const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                     let offNarratives = []
@@ -123,6 +237,9 @@ const FactExpressionViewer = () => {
                     const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
                     targetNode.classList.add('numeric')
                     ev.stopPropagation()
+                    await store.loadExpressable(name, contextref)
+                    const expressable = store.getExpressable()
+                    renderExpression(expressable, getGrid())
                 })
                 allNonFractions.push(thisNode)
                 thisNode = nonFractions.iterateNext()
@@ -142,7 +259,7 @@ const FactExpressionViewer = () => {
                 let name = thisNode.getAttribute('name')
                 let contextref = thisNode.getAttribute('contextref')
                 const targetId = await digestMessage(name+'/'+contextref)
-                thisNode.addEventListener('click', ev => {
+                thisNode.addEventListener('click', async ev => {
                     const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                     const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                     let offNarratives = []
@@ -188,6 +305,9 @@ const FactExpressionViewer = () => {
                     clickednarrativeHighlight.style.width = `100vw`
                     clickednarrativeHighlight.style.display = `block`
                     ev.stopPropagation()
+                    await store.loadExpressable(name, contextref)
+                    const expressable = store.getExpressable()
+                    renderExpression(expressable, getGrid())
                 })
                 allNonNumerics.push(thisNode)
                 thisNode = nonNumerics.iterateNext()
@@ -255,96 +375,10 @@ const FactExpressionViewer = () => {
                 }}>[X]</a>
                 </h1>
             </div>
-        <div id={styles.results}>
-            {
-                    selected() && <>
-                        <h2>{
-                            () => {
-                                const labelRole = store.getLabelRole()
-                                const lang = store.getLang()
-                                return selected().Labels[labelRole][lang]
-                            }
-                        }</h2>
-                        <h3>{
-                            () => {
-                                const lang = store.getLang()
-                                return selected().Context.Period[lang]
-                            }
-                        }</h3>
-                        {
-                            () => {
-                                const labelRole = store.getLabelRole()
-                                const lang = store.getLang()
-                                const vq = selected().Context.VoidQuadrant
-                                const cmg = selected().Context.ContextualMemberGrid
-                                if (!vq?.length && !cmg?.[0]?.length) {
-                                    return null
-                                }
-                                return <ul>{
-                                    vq.map(
-                                        (vcell, i) => {
-                                            let vtext = ''
-                                            let cmtext = ''
-                                            if (vcell.TypedDomain) {
-                                                if (vcell.TypedDomain.Label[labelRole]) {
-                                                    const langVal =
-                                                        vcell.TypedDomain.Label[labelRole][lang]
-                                                    const unlabelledVal =
-                                                        vcell.TypedDomain.Label.Default
-                                                            .Unlabelled
-                                                    vtext = langVal || unlabelledVal
-                                                } else {
-                                                    vtext = vcell.TypedDomain.Label.Default
-                                                        .Unlabelled
-                                                }
-                                            } else {
-                                                if (vcell.Dimension.Label[labelRole]) {
-                                                    const langVal =
-                                                        vcell.Dimension.Label[labelRole][lang]
-                                                    const unlabelledVal =
-                                                        vcell.Dimension.Label.Default.Unlabelled
-                                                        vtext = langVal || unlabelledVal
-                                                } else {
-                                                    vtext = vcell.Dimension.Label.Default.Unlabelled
-                                                }
-                                            }
-                                            const memberCell = cmg[0][i]
-                                            if (memberCell.TypedMember) {
-                                                cmtext = memberCell.TypedMember
-                                            } else if (memberCell.ExplicitMember) {
-                                                if (memberCell.ExplicitMember.Label[labelRole]) {
-                                                    const explicitMember = memberCell.ExplicitMember
-                                                    const langVal =
-                                                        explicitMember.Label[labelRole][lang]
-                                                    const unlabelledVal =
-                                                        explicitMember.Label.Default.Unlabelled
-                                                    cmtext = langVal || unlabelledVal
-                                                } else {
-                                                    cmtext = memberCell.ExplicitMember.Label.Default
-                                                        .Unlabelled
-                                                }
-                                            } else {
-                                                cmtext = ''
-                                            }
-                                            return <li><h3>{vtext}</h3>: <h4>{cmtext}</h4></li>
-                                        }
-                                    )
-                                }</ul>
-                            }
-                        }
-                        <p>Measurement: {selected().Measurement || 'nil'}</p>
-                        <p>Precision: {selected().Precision}</p>
-                        {selected()?.Footnotes.length && <>
-                            <h3>Footnotes</h3>
-                            <ol>
-                                {
-                                    selected().Footnotes.map(
-                                        f => <li>{f}</li>
-                                    )
-                                }
-                            </ol>
-                        </>}
-            <div id={styles.viewer}><fluent-button appearance='accent' onClick={
+        <div id={styles.results} ref={facttablediv}>
+                        
+                        
+            {/* <div id={styles.viewer}><fluent-button appearance='accent' onClick={
                             e => {
                                 const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                                 const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
@@ -364,7 +398,7 @@ const FactExpressionViewer = () => {
                                     let mynode = mynonFractions.iterateNext()
                                     while (mynode) {
                                         allNonFractions.push(mynode)
-                                        mynode = iterator.iterateNext()
+                                        mynode = mynonFractions.iterateNext()
                                     }
                                 }
                                 catch(e) {
@@ -382,11 +416,9 @@ const FactExpressionViewer = () => {
                                     othernarrativeHighlight.style.width = `0`
                                     othernarrativeHighlight.style.display = `none`
                                 })
-                                setSelected(null)
+                                store.setExpressable(null)
                             }
-                        }>Clear</fluent-button></div>
-                    </>
-                }
+                        }>Clear</fluent-button></div> */}
             </div>
         </div>
     </div>
