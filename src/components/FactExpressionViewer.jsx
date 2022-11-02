@@ -96,7 +96,7 @@ const FactExpressionViewer = () => {
                         }
                     }
                     catch(e) {
-                        console.error(`Error: Document tree modified during iteration ${e}`)
+                        console.error(e)
                     }
                     try {
                         let mynode = mynonFractions.iterateNext()
@@ -106,7 +106,7 @@ const FactExpressionViewer = () => {
                         }
                     }
                     catch(e) {
-                        console.error(`Error: Document tree modified during iteration ${e}`)
+                        console.error(e)
                     }
                     offNarratives.forEach(async mynode => {
                         mynode.classList.remove('narrative')
@@ -129,7 +129,7 @@ const FactExpressionViewer = () => {
             }
         }
         catch(e) {
-            console.error(`Error: Document tree modified during iteration ${e}`)
+            console.error(e)
         }
         allNonFractions.forEach(thisNode => {
             thisNode.classList.add('numeric')
@@ -155,7 +155,7 @@ const FactExpressionViewer = () => {
                         }
                     }
                     catch(e) {
-                        console.error(`Error: Document tree modified during iteration ${e}`)
+                        console.error(e)
                     }
                     try {
                         let mynode = mynonFractions.iterateNext()
@@ -165,7 +165,7 @@ const FactExpressionViewer = () => {
                         }
                     }
                     catch(e) {
-                        console.error(`Error: Document tree modified during iteration ${e}`)
+                        console.error(e)
                     }
                     offNarratives.forEach(async mynode => {
                         mynode.classList.remove('narrative')
@@ -194,7 +194,7 @@ const FactExpressionViewer = () => {
             }
         }
         catch(e) {
-            console.error(`Error: Document tree modified during iteration ${e}`)
+            console.error(e)
         }
         const iframeBody = viewerIframe.contentDocument.body
         allNonNumerics.forEach(async thisNode => {
@@ -358,7 +358,7 @@ const FactExpressionViewer = () => {
                                     }
                                 }
                                 catch(e) {
-                                    console.error(`Error: Document tree modified during iteration ${e}`)
+                                    console.error(e)
                                 }
                                 try {
                                     let mynode = mynonFractions.iterateNext()
@@ -368,7 +368,7 @@ const FactExpressionViewer = () => {
                                     }
                                 }
                                 catch(e) {
-                                    console.error(`Error: Document tree modified during iteration ${e}`)
+                                    console.error(e)
                                 }
                                 allNonFractions.forEach(mynode => {
                                     mynode.classList.add('numeric')
