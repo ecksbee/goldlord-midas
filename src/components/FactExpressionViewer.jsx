@@ -222,14 +222,14 @@ const FactExpressionViewer = () => {
         top: 0,
         left: 0,
         width: '100vw',
-        'min-width': 'calc(800px + 320px)',
+        'min-width': 'calc(800px + 600px)',
         height: '100vh',
     }}>
         <div style={{
             position: 'absolute',
             top: 0,
             left: 0,
-            width: 'calc(100vw - 320px)',
+            width: 'calc(100vw - 600px)',
             'min-width': '800px',
             height: '100vh'
         }}>
@@ -239,8 +239,8 @@ const FactExpressionViewer = () => {
             position: 'absolute',
             top: 0,
             right: 0,
-            width: '320px',
-            'min-width': '320px',
+            width: '600px',
+            'min-width': '600px',
             height: '96vh',
         }}>
             <div id={styles['title-container']}>
