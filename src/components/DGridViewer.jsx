@@ -94,11 +94,11 @@ const DGridViewer = () => {
             width: '100vw',
             display: store.getVisibleArcDiagram() ? 'block' : 'none'
         }}>
-            <fluent-button id='hide-arc-diagram-button' appearance='accent' onClick={
-                    e => {
-                        store.setVisibleArcDiagram(false)
-                    }
-                }>Back</fluent-button>
+            <a href='#' onClick={e => {
+                e.preventDefault()
+                e.stopPropagation()
+                store.setVisibleArcDiagram(false)
+            }}>[X]</a>
             <svg id='arc-diagram' ref={arcDiagramDiv} width='100vw' height='100vh'></svg>
         </div>
     </>

@@ -21,16 +21,18 @@ const Leaflet = () => {
     return (<div id={styles['leaflet-wrapper']}>
         <div id={styles.leafletTitleWrapper}>
             <h1 id={styles.leafletTitle}>{title}</h1>
-            <fluent-button id={styles['close-narrative-fact-button']} appearance='accent' onClick={
-                e => {
+            &nbsp; &nbsp;
+            <div id={styles['close-narrative-fact-button']} >
+            <a href='#' onClick={e => {
+                    e.preventDefault()
+                    e.stopPropagation()
                     if (store.getNarrativeFact()) {
                         store.hideNarrativeFact()
                     }
                     if (store.getFootnotes()) {
                         store.hideFootnotes()
                     }
-                }
-            }>Close</fluent-button>
+            }}>[X]</a></div>
         </div>
         <div id={styles.leafletLabel}><h2>{label}</h2></div>
         <div id={styles.leafletPeriodHeader}><h3>{periodHeader}</h3></div>

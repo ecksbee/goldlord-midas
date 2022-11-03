@@ -3,6 +3,7 @@ import store from '../lib/store'
 import styles from './FactExpressionViewer.module.css'
 import canvasDatagrid from 'canvas-datagrid'
 
+const highlightPrefix = 'hl-'
 async function digestMessage(message) {
   const msgUint8 = new TextEncoder().encode(message)                           // encode as (utf-8) Uint8Array
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8)           // hash the message
@@ -11,7 +12,7 @@ async function digestMessage(message) {
   return hashHex;
 }
 
-function renderExpression(expressable, theCanvasGrid) {
+function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contextref) {
     const labelRole = store.getLabelRole()
     const lang = store.getLang()
     let datagrid = []
@@ -90,6 +91,131 @@ function renderExpression(expressable, theCanvasGrid) {
     }
     datagrid.push([concept, factvalue, ''])
     theCanvasGrid.data = datagrid
+    theCanvasGrid.addEventListener('afterrendercell', function (e) {
+        let superscripts = expressable.Footnotes.map((_, i) => i.toString())
+        const cell = e.cell.value
+        if (!superscripts?.length) {
+            return
+        }
+        let newInnerHtml = `<span style="font: 10.66px CarlitoRegular; padding: 0 2%;">${cell}</span><superscript style="vertical-align: super; font: 9px CarlitoRegular;">(`
+        for (let k = 0; k < superscripts.length; k++) {
+            const superscript = superscripts[k] - 1
+            newInnerHtml += superscript
+            if (k !== superscripts.length - 1) {
+                newInnerHtml += ', '
+            }
+        }
+        newInnerHtml += `)</superscript>`
+        e.cell.innerHTML = newInnerHtml
+    })
+    theCanvasGrid.addEventListener('contextmenu', e => {
+        const scroll = {
+            title: 'Scroll Into View',
+            click: () => {
+                const target = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
+                target.scrollIntoView()
+                target.classList.add('alert-fact')
+                setTimeout(
+                    () => {
+                        target.classList.remove('alert-fact')
+                    },
+                    5000
+                )
+            },
+        }
+        const clear = {
+            title: 'Clear Selection',
+            click: async () => {
+                theCanvasGrid.addEventListener('contextmenu', e => {
+                    e.items =[]
+                })
+                theCanvasGrid.data = [['', ''],['', '']]
+                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                const allNonFractions = []
+                const allNonNumerics = []
+                try {
+                    let mynode = mynonNumerics.iterateNext()
+                    while (mynode) {
+                        allNonNumerics.push(mynode)
+                        mynode = mynonNumerics.iterateNext()
+                    }
+                }
+                catch(e) {
+                    console.error(e)
+                }
+                try {
+                    let mynode = mynonFractions.iterateNext()
+                    while (mynode) {
+                        allNonFractions.push(mynode)
+                        mynode = mynonFractions.iterateNext()
+                    }
+                }
+                catch(e) {
+                    console.error(e)
+                }
+                allNonFractions.forEach(mynode => {
+                    mynode.classList.add('numeric')
+                })
+                allNonNumerics.forEach(async mynode => {
+                    mynode.classList.add('narrative')
+                    let name = mynode.getAttribute('name')
+                    let contextref = mynode.getAttribute('contextref')
+                    const otherID = await digestMessage(name+'/'+contextref)
+                    const othernarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + otherID)
+                    othernarrativeHighlight.style.width = `0`
+                    othernarrativeHighlight.style.display = `none`
+                })
+                store.setExpressable(null)
+            },
+        }
+        let narrative, footnotes
+        if (fact.Unlabelled.InnerHtml) {
+            narrative = {
+                title: 'Show Narrative',
+                click: () => {
+                    alert('show narrative')
+                },
+            }
+        }
+        if (expressable.Footnotes.length) {
+            footnotes = {
+                title: 'Show Footnotes',
+                click: () => {
+                    alert('show footnotes')
+                },
+            }
+        }
+        let i
+        i = e.items.findIndex(item => item.title == 'Scroll Into View')
+        if (i>-1) {
+            e.items[i] = scroll
+        } else {
+            e.items.push(scroll)
+        }
+        i = e.items.findIndex(item => item.title == 'Clear Selection')
+        if (i>-1) {
+            e.items[i] = clear
+        } else {
+            e.items.push(clear)
+        }
+        if (narrative) {
+            i = e.items.findIndex(item => item.title == 'Show Narrative')
+            if (i>-1) {
+                e.items[i] = narrative
+            } else {
+                e.items.push(narrative)
+            }
+        }
+        if (footnotes) {
+            i = e.items.findIndex(item => item.title == 'Show Footnotes')
+            if (i>-1) {
+                e.items[i] = footnotes
+            } else {
+                e.items.push(footnotes)
+            }
+        }
+    })
     theCanvasGrid.draw()
 }
 
@@ -125,7 +251,6 @@ const FactExpressionViewer = () => {
     const [title, setTitle] = createSignal('...')
     const [getGrid, setGrid] = createSignal(null)
     let viewerIframe, facttablediv
-    const highlightPrefix = 'hl-'
     onMount(async () => {
         mountFactTable(facttablediv, (grid) => {
             setGrid(grid)
@@ -239,7 +364,7 @@ const FactExpressionViewer = () => {
                     ev.stopPropagation()
                     await store.loadExpressable(name, contextref)
                     const expressable = store.getExpressable()
-                    renderExpression(expressable, getGrid())
+                    renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
                 })
                 allNonFractions.push(thisNode)
                 thisNode = nonFractions.iterateNext()
@@ -307,7 +432,7 @@ const FactExpressionViewer = () => {
                     ev.stopPropagation()
                     await store.loadExpressable(name, contextref)
                     const expressable = store.getExpressable()
-                    renderExpression(expressable, getGrid())
+                    renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
                 })
                 allNonNumerics.push(thisNode)
                 thisNode = nonNumerics.iterateNext()
@@ -368,6 +493,7 @@ const FactExpressionViewer = () => {
         }}>
             <div id={styles['title-container']}>
                 <h1>{title()}
+                &nbsp;&nbsp;
                 <a href='#' onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -375,50 +501,7 @@ const FactExpressionViewer = () => {
                 }}>[X]</a>
                 </h1>
             </div>
-        <div id={styles.results} ref={facttablediv}>
-                        
-                        
-            {/* <div id={styles.viewer}><fluent-button appearance='accent' onClick={
-                            e => {
-                                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                                const allNonFractions = []
-                                const allNonNumerics = []
-                                try {
-                                    let mynode = mynonNumerics.iterateNext()
-                                    while (mynode) {
-                                        allNonNumerics(mynode)
-                                        mynode = iterator.iterateNext()
-                                    }
-                                }
-                                catch(e) {
-                                    console.error(e)
-                                }
-                                try {
-                                    let mynode = mynonFractions.iterateNext()
-                                    while (mynode) {
-                                        allNonFractions.push(mynode)
-                                        mynode = mynonFractions.iterateNext()
-                                    }
-                                }
-                                catch(e) {
-                                    console.error(e)
-                                }
-                                allNonFractions.forEach(mynode => {
-                                    mynode.classList.add('numeric')
-                                })
-                                allNonNumerics.forEach(async mynode => {
-                                    mynode.classList.add('narrative')
-                                    let name = mynode.getAttribute('name')
-                                    let contextref = mynode.getAttribute('contextref')
-                                    const otherID = await digestMessage(name+'/'+contextref)
-                                    const othernarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + otherID)
-                                    othernarrativeHighlight.style.width = `0`
-                                    othernarrativeHighlight.style.display = `none`
-                                })
-                                store.setExpressable(null)
-                            }
-                        }>Clear</fluent-button></div> */}
+            <div id={styles.results} ref={facttablediv}>       
             </div>
         </div>
     </div>
