@@ -50,15 +50,14 @@ const BrowserPage = () => {
         display: store.getNarrativeFact() ? 'none' : 'block'
     }}>
             <div id={styles['main-panel-title']}>
-                <h1 class={styles.truncate + ' ' + styles['main-panel-title-h1']}>{mainPanelTitle}</h1>
-            </div>
-            <div>
-                <fluent-button id='back-to-catalog-button' appearance='accent' onClick={
-                    e => {
-                        store.setHash(null)
-                        store.setRenderable(null)
-                    }
-                }>Back</fluent-button>
+                <h1 class={styles.truncate + ' ' + styles['main-panel-title-h1']}>{mainPanelTitle}
+                &nbsp;&nbsp;
+                <a href='#' onClick={e => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    store.setHash(null)
+                    store.setRenderable(null)
+                }}>[X]</a></h1>
             </div>
             <div id={styles['main-panel-body']}>
                 <fluent-tabs activeid={currentTab()}>

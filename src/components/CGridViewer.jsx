@@ -6,9 +6,9 @@ import transformSummationItem from '../lib/transformSummationItem'
 
 const CGridViewer = () => {
     let summationItemDiv
-    onMount(async ()=> {
+    onMount(()=> {
         try {
-            const renderable = await store.getRenderable()
+            const renderable = store.getRenderable()
             const cGrid = renderable.CGrid
             if (!cGrid.SummationItems?.length) {
                 setTimeout(

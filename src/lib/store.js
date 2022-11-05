@@ -2,6 +2,7 @@ import { createStore } from 'solid-js/store'
 import fetchCatalog from './fetchCatalog'
 import fetchRenderabale from './fetchRenderabale'
 import fetchIxbrlDocument from './fetchIxbrlDocument'
+import fetchExpressable from './fetchExpressable'
  
 const initialState = {
     mode: 'concept_network_browser',
@@ -9,6 +10,7 @@ const initialState = {
     hash: null,
     ixbrlDocument: null,
     renderable: null,
+    expressable: null,
     loading: true,
     error: false,
     visibleArcDiagram: false,
@@ -42,6 +44,9 @@ const setIxbrlDocument = (ixbrlDocument) => {
 }
 const setRenderable = (newRenderable) => {
     setState('renderable', () => newRenderable)
+}
+const setExpressable = (newExpressable) => {
+    setState('expressable', () => newExpressable || null)
 }
 const setVisibleArcDiagram = (newVal) => {
     setState('visibleArcDiagram', () => !!newVal)
@@ -273,6 +278,24 @@ const loadRenderable = async (hash) => {
       return
     }
 }
+const loadExpressable = async (name, contextref) => {
+    // setLoading(true)
+    setError(false)
+    setExpressable(null)
+    let fetched
+    try {
+      fetched = await fetchExpressable(name, contextref)
+    //   setLoading(false)
+      setError(false)
+      setExpressable(fetched)
+    } catch (e) {
+      console.error(e)
+    //   setLoading(false)
+      setError(true)
+      setExpressable(null)
+      return
+    }
+}
 
 export default {
     isFactExpressionViewerVisible: () => state.mode === 'fact_expression_viewer',
@@ -312,4 +335,7 @@ export default {
     footnotesInnerHtml,
     footnotesLabel,
     footnotesPeriodHeader,
+    loadExpressable,
+    getExpressable: () => state.expressable,
+    setExpressable,
 }

@@ -1,20 +1,262 @@
 import { onMount, createSignal } from 'solid-js'
-import Fuse from 'fuse.js'
 import store from '../lib/store'
 import styles from './FactExpressionViewer.module.css'
+import canvasDatagrid from 'canvas-datagrid'
+
+const highlightPrefix = 'hl-'
+async function digestMessage(message) {
+  const msgUint8 = new TextEncoder().encode(message)                           // encode as (utf-8) Uint8Array
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8)           // hash the message
+  const hashArray = Array.from(new Uint8Array(hashBuffer))                     // convert buffer to byte array
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
+  return hashHex;
+}
+
+function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contextref) {
+    const labelRole = store.getLabelRole()
+    const lang = store.getLang()
+    let datagrid = []
+    const period = expressable.Context.Period[lang]
+    datagrid.push([ '', period, ''])
+    const vq = expressable.Context.VoidQuadrant
+    const cmg = expressable.Context.ContextualMemberGrid
+    const dimensionless = !vq?.length && !cmg?.[0]?.length
+    if (!dimensionless) {
+        vq.forEach((vcell, i) => {
+                let vtext = ''
+                let cmtext = ''
+                if (vcell.TypedDomain) {
+                    if (vcell.TypedDomain.Label[labelRole]) {
+                        const langVal =
+                            vcell.TypedDomain.Label[labelRole][lang]
+                        const unlabelledVal =
+                            vcell.TypedDomain.Label.Default
+                                .Unlabelled
+                        vtext = langVal || unlabelledVal
+                    } else {
+                        vtext = vcell.TypedDomain.Label.Default
+                            .Unlabelled
+                    }
+                } else {
+                    if (vcell.Dimension.Label[labelRole]) {
+                        const langVal =
+                            vcell.Dimension.Label[labelRole][lang]
+                        const unlabelledVal =
+                            vcell.Dimension.Label.Default.Unlabelled
+                            vtext = langVal || unlabelledVal
+                    } else {
+                        vtext = vcell.Dimension.Label.Default.Unlabelled
+                    }
+                }
+                const memberCell = cmg[0][i]
+                if (memberCell.TypedMember) {
+                    cmtext = memberCell.TypedMember
+                } else if (memberCell.ExplicitMember) {
+                    if (memberCell.ExplicitMember.Label[labelRole]) {
+                        const explicitMember = memberCell.ExplicitMember
+                        const langVal =
+                            explicitMember.Label[labelRole][lang]
+                        const unlabelledVal =
+                            explicitMember.Label.Default.Unlabelled
+                        cmtext = langVal || unlabelledVal
+                    } else {
+                        cmtext = memberCell.ExplicitMember.Label.Default
+                            .Unlabelled
+                    }
+                } else {
+                    cmtext = ''
+                }
+                datagrid.push([vtext, cmtext, ''])
+            })
+    }
+    const concept = expressable.Labels[labelRole][lang]
+    const fact = expressable.Expression
+    let factvalue = ''
+    if (fact.Unlabelled.Core) {
+        if (fact[lang]) {
+            factvalue =
+                fact[lang].Head +
+                    fact[lang].Core +
+                    fact[lang].Tail
+        } else {
+            factvalue =
+                fact.Unlabelled.Head +
+                    fact.Unlabelled.Core +
+                    fact.Unlabelled.Tail
+        }
+    } else if (fact.Unlabelled.InnerHtml) {
+        factvalue = '...'
+    } else {
+        factvalue = ''
+    }
+    datagrid.push([concept, factvalue, ''])
+    theCanvasGrid.data = datagrid
+    theCanvasGrid.addEventListener('afterrendercell', function (e) {
+        let superscripts = expressable.Footnotes.map((_, i) => i.toString())
+        const cell = e.cell.value
+        if (!superscripts?.length) {
+            return
+        }
+        let newInnerHtml = `<span style="font: 10.66px CarlitoRegular; padding: 0 2%;">${cell}</span><superscript style="vertical-align: super; font: 9px CarlitoRegular;">(`
+        for (let k = 0; k < superscripts.length; k++) {
+            const superscript = superscripts[k] - 1
+            newInnerHtml += superscript
+            if (k !== superscripts.length - 1) {
+                newInnerHtml += ', '
+            }
+        }
+        newInnerHtml += `)</superscript>`
+        e.cell.innerHTML = newInnerHtml
+    })
+    theCanvasGrid.addEventListener('contextmenu', e => {
+        const scroll = {
+            title: 'Scroll Into View',
+            click: () => {
+                const target = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
+                target.scrollIntoView()
+                target.classList.add('alert-fact')
+                setTimeout(
+                    () => {
+                        target.classList.remove('alert-fact')
+                    },
+                    5000
+                )
+            },
+        }
+        const clear = {
+            title: 'Clear Selection',
+            click: async () => {
+                theCanvasGrid.addEventListener('contextmenu', e => {
+                    e.items =[]
+                })
+                theCanvasGrid.data = [['', ''],['', '']]
+                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                const allNonFractions = []
+                const allNonNumerics = []
+                try {
+                    let mynode = mynonNumerics.iterateNext()
+                    while (mynode) {
+                        allNonNumerics.push(mynode)
+                        mynode = mynonNumerics.iterateNext()
+                    }
+                }
+                catch(e) {
+                    console.error(e)
+                }
+                try {
+                    let mynode = mynonFractions.iterateNext()
+                    while (mynode) {
+                        allNonFractions.push(mynode)
+                        mynode = mynonFractions.iterateNext()
+                    }
+                }
+                catch(e) {
+                    console.error(e)
+                }
+                allNonFractions.forEach(mynode => {
+                    mynode.classList.add('numeric')
+                })
+                allNonNumerics.forEach(async mynode => {
+                    mynode.classList.add('narrative')
+                    let name = mynode.getAttribute('name')
+                    let contextref = mynode.getAttribute('contextref')
+                    const otherID = await digestMessage(name+'/'+contextref)
+                    const othernarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + otherID)
+                    othernarrativeHighlight.style.width = `0`
+                    othernarrativeHighlight.style.display = `none`
+                })
+                store.setExpressable(null)
+            },
+        }
+        let narrative, footnotes
+        if (fact.Unlabelled.InnerHtml) {
+            narrative = {
+                title: 'Show Narrative',
+                click: () => {
+                    alert('show narrative')
+                },
+            }
+        }
+        if (expressable.Footnotes.length) {
+            footnotes = {
+                title: 'Show Footnotes',
+                click: () => {
+                    alert('show footnotes')
+                },
+            }
+        }
+        let i
+        i = e.items.findIndex(item => item.title == 'Scroll Into View')
+        if (i>-1) {
+            e.items[i] = scroll
+        } else {
+            e.items.push(scroll)
+        }
+        i = e.items.findIndex(item => item.title == 'Clear Selection')
+        if (i>-1) {
+            e.items[i] = clear
+        } else {
+            e.items.push(clear)
+        }
+        if (narrative) {
+            i = e.items.findIndex(item => item.title == 'Show Narrative')
+            if (i>-1) {
+                e.items[i] = narrative
+            } else {
+                e.items.push(narrative)
+            }
+        }
+        if (footnotes) {
+            i = e.items.findIndex(item => item.title == 'Show Footnotes')
+            if (i>-1) {
+                e.items[i] = footnotes
+            } else {
+                e.items.push(footnotes)
+            }
+        }
+    })
+    theCanvasGrid.draw()
+}
+
+function mountFactTable(facttablediv, cb) {
+    setTimeout(() => {
+        const grid = canvasDatagrid({
+            allowSorting: false, // affected by this bug https://github.com/TonyGermaneri/canvas-datagrid/issues/261
+            allowColumnReordering: false,
+            autoResizeColumns: false,
+            editable: false,
+            allowFreezingColumns: false,
+            allowFreezingRows: false,
+            style: {
+                cellFont: '10.66px CarlitoRegular',
+                columnHeaderCellFont: '12px CarlitoRegular',
+                rowHeaderCellFont: '12px CarlitoRegular',
+                activeCellFont: '10.66px CarlitoRegular',
+            }
+        })
+        facttablediv.appendChild(grid)
+        grid.style.height = '90vh'
+        grid.style.width = '98%'
+        grid.data = [['', ''],['', '']]
+        grid.addEventListener('beforesortcolumn', e => {
+            e.preventDefault()
+        })
+        grid.draw()
+        cb(grid)
+    }, 100)
+}
 
 const FactExpressionViewer = () => {
     const [title, setTitle] = createSignal('...')
-    const [indexes, setIndexes] = createSignal(null)
-    const [results, setResults] = createSignal([])
-    const [selected, setSelected] = createSignal(null)
-    let viewerIframe
-    let highlightStacks = []
-    const highlightPrefix = 'hl-'
-    onMount(() => {
+    const [getGrid, setGrid] = createSignal(null)
+    let viewerIframe, facttablediv
+    onMount(async () => {
+        mountFactTable(facttablediv, (grid) => {
+            setGrid(grid)
+        })
         const catalog = store.getCatalog()
         setTitle(catalog.DocumentName)
-        const expressions = catalog.Expressions
         const ixbrldocument = store.getIxbrlDocument()
         viewerIframe.contentDocument.write(ixbrldocument)
         const iframeHead = viewerIframe.contentDocument.head
@@ -73,128 +315,169 @@ const FactExpressionViewer = () => {
             }
         `))
         iframeHead.appendChild(iframeStyle)
-        const ids = Object.keys(expressions)
-        const searchDocs = ids.map(
-            id => {
-                return {
-                    ...(expressions[id]),
-                    id
-                }
+        const nonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+        let allNonFractions = []
+        try {
+            let thisNode = nonFractions.iterateNext()
+            while (thisNode) {
+                let name = thisNode.getAttribute('name')
+                let contextref = thisNode.getAttribute('contextref')
+                thisNode.addEventListener('click', async ev => {
+                    const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                    const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                    let offNarratives = []
+                    let offNumerics = []
+                    try {
+                        let mynode = mynonNumerics.iterateNext()
+                        while (mynode) {
+                            offNarratives.push(mynode)
+                            mynode = mynonNumerics.iterateNext()
+                        }
+                    }
+                    catch(e) {
+                        console.error(e)
+                    }
+                    try {
+                        let mynode = mynonFractions.iterateNext()
+                        while (mynode) {
+                            offNumerics.push(mynode)
+                            mynode = mynonFractions.iterateNext()
+                        }
+                    }
+                    catch(e) {
+                        console.error(e)
+                    }
+                    offNarratives.forEach(async mynode => {
+                        mynode.classList.remove('narrative')
+                        let name = mynode.getAttribute('name')
+                        let contextref = mynode.getAttribute('contextref')
+                        const offId = await digestMessage(name+'/'+contextref)
+                        const offnarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + offId)
+                        offnarrativeHighlight.style.width = `0`
+                        offnarrativeHighlight.style.display = `none`
+                    })
+                    offNumerics.forEach(mynode => {
+                        mynode.classList.remove('numeric')
+                    })
+                    const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
+                    targetNode.classList.add('numeric')
+                    ev.stopPropagation()
+                    await store.loadExpressable(name, contextref)
+                    const expressable = store.getExpressable()
+                    renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
+                })
+                allNonFractions.push(thisNode)
+                thisNode = nonFractions.iterateNext()
             }
-        )
-        const commonOptions = {
-            isCaseSensitive: false,
-            includeScore: false,
-            shouldSort: true,
-            includeMatches: true,   //todo highlight matches
-            findAllMatches: false,
-            minMatchCharLength: 1,
-            location: 0,
-            threshold: 0.6,
-            distance: 100,
-            useExtendedSearch: false,
-            ignoreLocation: false,
-            ignoreFieldNorm: false,
-            fieldNormWeight: 1,
         }
-        setIndexes({
-            'Default': {
-                'Unlabelled': new Fuse(searchDocs, {
-                    ...commonOptions,
-                    keys: [
-                        'Labels.Default.Unlabelled',
-                    ]
-                })
-            }
+        catch(e) {
+            console.error(e)
+        }
+        allNonFractions.forEach(thisNode => {
+            thisNode.classList.add('numeric')
         })
-        ids.forEach(
-            id => {
-                const ixtag = viewerIframe.contentWindow.document.getElementById(id)
-                let tagName = ixtag.tagName
-                const colonIndex = tagName.indexOf(':')
-                if (colonIndex > -1) {
-                    tagName = tagName.substring(colonIndex + 1)
-                }
-                const expression = expressions[id]
-                ixtag.addEventListener('click', e => {
-                    setSelected(expression)
-                    ids.forEach(
-                        tempid => {
-                            const ixtag = viewerIframe.contentWindow.document.getElementById(tempid)
-                            let tagName = ixtag.tagName
-                            const colonIndex = tagName.indexOf(':')
-                            if (colonIndex > -1) {
-                                tagName = tagName.substring(colonIndex + 1)
-                            }
-                            switch (tagName.toLowerCase()) {
-                                case 'nonnumeric':
-                                    if (id === tempid) {
-                                        ixtag.classList.add('narrative')
-                                        const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
-                                        narrativeHighlight.style.width = `100vw`
-                                        narrativeHighlight.style.display = `block`
-                                    } else {
-                                        ixtag.classList.remove('narrative')
-                                        const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + tempid)
-                                        narrativeHighlight.style.width = `0`
-                                        narrativeHighlight.style.display = `none`
-                                    }
-                                    break;
-                                case 'nonfraction':
-                                    if (id === tempid) {
-                                        ixtag.classList.add('numeric')
-                                    } else {
-                                        ixtag.classList.remove('numeric')
-                                    }
-                                    break;
-                                default:
-                            }
+        const nonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+        let allNonNumerics = []
+        try {
+            let thisNode = nonNumerics.iterateNext()
+            while (thisNode) {
+                let name = thisNode.getAttribute('name')
+                let contextref = thisNode.getAttribute('contextref')
+                const targetId = await digestMessage(name+'/'+contextref)
+                thisNode.addEventListener('click', async ev => {
+                    const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                    const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                    let offNarratives = []
+                    let offNumerics = []
+                    try {
+                        let mynode = mynonNumerics.iterateNext()
+                        while (mynode) {
+                            offNarratives.push(mynode)
+                            mynode = mynonNumerics.iterateNext()
                         }
-                    )
-                    e.stopPropagation()
+                    }
+                    catch(e) {
+                        console.error(e)
+                    }
+                    try {
+                        let mynode = mynonFractions.iterateNext()
+                        while (mynode) {
+                            offNumerics.push(mynode)
+                            mynode = mynonFractions.iterateNext()
+                        }
+                    }
+                    catch(e) {
+                        console.error(e)
+                    }
+                    offNarratives.forEach(async mynode => {
+                        mynode.classList.remove('narrative')
+                        let name = mynode.getAttribute('name')
+                        let contextref = mynode.getAttribute('contextref')
+                        const offId = await digestMessage(name+'/'+contextref)
+                        if (targetId == offId) {
+                            return
+                        }
+                        const offnarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + offId)
+                        offnarrativeHighlight.style.width = `0`
+                        offnarrativeHighlight.style.display = `none`
+                    })
+                    offNumerics.forEach(mynode => {
+                        mynode.classList.remove('numeric')
+                    })
+                    const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
+                    targetNode.classList.add('narrative')
+                    const clickednarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + targetId)
+                    clickednarrativeHighlight.style.width = `100vw`
+                    clickednarrativeHighlight.style.display = `block`
+                    ev.stopPropagation()
+                    await store.loadExpressable(name, contextref)
+                    const expressable = store.getExpressable()
+                    renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
                 })
-                switch (tagName.toLowerCase()) {
-                    case 'nonnumeric':
-                        ixtag.classList.add('narrative')
-                        const iframeBody = viewerIframe.contentDocument.body
-                        const narrativeHighlight = viewerIframe.contentDocument.createElement('div')
-                        const top = ixtag.getBoundingClientRect().top
-                        let bottom = ixtag.getBoundingClientRect().bottom
-                        let continuedat = ixtag.getAttribute('continuedat')
-                        while (continuedat) {
-                            let cont = viewerIframe.contentWindow.document.getElementById(continuedat)
-                            bottom = cont.getBoundingClientRect().bottom
-                            continuedat = cont.getAttribute('continuedat')
-                        }
-                        narrativeHighlight.id = highlightPrefix + id
-                        narrativeHighlight.classList.add('narrative-highlight')
-                        narrativeHighlight.style.top = `${top}px`
-                        narrativeHighlight.style.height = `${bottom - top}px`
-                        narrativeHighlight.style.width = `0`
-                        narrativeHighlight.style.display = `none`
-                        iframeBody.appendChild(narrativeHighlight)
-                        break;
-                    case 'nonfraction':
-                        ixtag.classList.add('numeric')
-                        break;
-                    default:
-                }
+                allNonNumerics.push(thisNode)
+                thisNode = nonNumerics.iterateNext()
             }
-        )
+        }
+        catch(e) {
+            console.error(e)
+        }
+        const iframeBody = viewerIframe.contentDocument.body
+        allNonNumerics.forEach(async thisNode => {
+            thisNode.classList.add('narrative')
+            const narrativeHighlight = viewerIframe.contentDocument.createElement('div')
+            const top = thisNode.getBoundingClientRect().top
+            let bottom = thisNode.getBoundingClientRect().bottom
+            let continuedat = thisNode.getAttribute('continuedat')
+            while (continuedat) {
+                let cont = viewerIframe.contentDocument.getElementById(continuedat)
+                bottom = cont.getBoundingClientRect().bottom
+                continuedat = cont.getAttribute('continuedat')
+            }
+            let name = thisNode.getAttribute('name')
+            let contextref = thisNode.getAttribute('contextref')
+            const targetId = await digestMessage(name+'/'+contextref)
+            narrativeHighlight.id = highlightPrefix + targetId
+            narrativeHighlight.classList.add('narrative-highlight')
+            narrativeHighlight.style.top = `${top}px`
+            narrativeHighlight.style.height = `${bottom - top}px`
+            narrativeHighlight.style.width = `0`
+            narrativeHighlight.style.display = `none`
+            iframeBody.appendChild(narrativeHighlight)
+        })
     })
     return <div style={{
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100vw',
-        'min-width': 'calc(800px + 320px)',
+        'min-width': 'calc(800px + 600px)',
         height: '100vh',
     }}>
         <div style={{
             position: 'absolute',
             top: 0,
             left: 0,
-            width: 'calc(100vw - 320px)',
+            width: 'calc(100vw - 600px)',
             'min-width': '800px',
             height: '100vh'
         }}>
@@ -204,12 +487,13 @@ const FactExpressionViewer = () => {
             position: 'absolute',
             top: 0,
             right: 0,
-            width: '320px',
-            'min-width': '320px',
+            width: '600px',
+            'min-width': '600px',
             height: '96vh',
         }}>
             <div id={styles['title-container']}>
                 <h1>{title()}
+                &nbsp;&nbsp;
                 <a href='#' onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -217,268 +501,7 @@ const FactExpressionViewer = () => {
                 }}>[X]</a>
                 </h1>
             </div>
-            {
-                !selected() && <div id={styles['search-container']}>
-                    <fluent-text-field id={styles.search} appearance='filled' placeholder='Search fact expressions' 
-                        onChange={
-                            e => {
-                                const catalog = store.getCatalog()
-                                const expressions = catalog.Expressions
-                                const ids = Object.keys(expressions)
-                                if (e?.target?.value) {
-                                    const labelRole = store.getLabelRole()
-                                    const lang = store.getLang()
-                                    const currIndex = indexes()[labelRole][lang]
-                                    const res = currIndex.search(e?.target?.value) 
-                                    setResults(
-                                        res || []
-                                    )
-                                    const highlighted = res.map( r => r.item.id)
-                                    ids.forEach(
-                                        id => {
-                                            const ixtag = viewerIframe.contentWindow.document.getElementById(id)
-                                            let tagName = ixtag.tagName
-                                            const colonIndex = tagName.indexOf(':')
-                                            if (colonIndex > -1) {
-                                                tagName = tagName.substring(colonIndex + 1)
-                                            }
-                                            switch (tagName.toLowerCase()) {
-                                                case 'nonnumeric':
-                                                    const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
-                                                    if (highlighted.includes(id)) {
-                                                        ixtag.classList.add('narrative')
-                                                        narrativeHighlight.style.width = `100vw`
-                                                        narrativeHighlight.style.display = `block`
-                                                    } else {
-                                                        ixtag.classList.remove('narrative')
-                                                        narrativeHighlight.style.width = `0`
-                                                        narrativeHighlight.style.display = `none`
-                                                    }
-                                                    break;
-                                                case 'nonfraction':
-                                                    if (highlighted.includes(id)) {
-                                                        ixtag.classList.add('numeric')
-                                                    } else {
-                                                        ixtag.classList.remove('numeric')
-                                                    }
-                                                    break;
-                                                default:
-                                            }
-                                        }
-                                    )
-                                } else {
-                                    ids.forEach(
-                                        id => {
-                                            const ixtag = viewerIframe.contentWindow.document.getElementById(id)
-                                            let tagName = ixtag.tagName
-                                            const colonIndex = tagName.indexOf(':')
-                                            if (colonIndex > -1) {
-                                                tagName = tagName.substring(colonIndex + 1)
-                                            }
-                                            switch (tagName.toLowerCase()) {
-                                                case 'nonnumeric':
-                                                    const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
-                                                    ixtag.classList.add('narrative')
-                                                    narrativeHighlight.style.width = `0`
-                                                    narrativeHighlight.style.display = `none`
-                                                    break;
-                                                case 'nonfraction':
-                                                    ixtag.classList.add('numeric')
-                                                    break;
-                                                default:
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    />
-                </div>
-            }
-            <div id={styles.results}>
-                {
-                    !selected() && results() && <ul id={styles['results-list']}>{results().map(
-                        r => {
-                            const labelRole = store.getLabelRole()
-                            const lang = store.getLang()
-                            const text = r.item.Labels[labelRole][lang]
-                            const targetId = r.item.id
-                            const catalog = store.getCatalog()
-                            const expressions = catalog.Expressions
-                            const ids = Object.keys(expressions)
-                            return <li onClick={
-                                e => {
-                                    let target
-                                    ids.forEach(
-                                        id => {
-                                            const ixtag = viewerIframe.contentWindow.document.getElementById(id)
-                                            let tagName = ixtag.tagName
-                                            const colonIndex = tagName.indexOf(':')
-                                            if (colonIndex > -1) {
-                                                tagName = tagName.substring(colonIndex + 1)
-                                            }
-                                            switch (tagName.toLowerCase()) {
-                                                case 'nonnumeric':
-                                                    const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
-                                                    if (targetId === id) {
-                                                        ixtag.classList.add('narrative')
-                                                        target = ixtag
-                                                        narrativeHighlight.style.width = `100vw`
-                                                        narrativeHighlight.style.display = `block`
-                                                    } else {
-                                                        ixtag.classList.remove('narrative')
-                                                        narrativeHighlight.style.width = `0`
-                                                        narrativeHighlight.style.display = `none`
-                                                    }
-                                                    break;
-                                                case 'nonfraction':
-                                                    if (targetId === id) {
-                                                        ixtag.classList.add('numeric')
-                                                        target = ixtag
-                                                    } else {
-                                                        ixtag.classList.remove('numeric')
-                                                    }
-                                                    break;
-                                                default:
-                                            }
-                                        }
-                                    )
-                                    if (target) {
-                                        target.scrollIntoView()
-                                        target.classList.add('alert-fact')
-                                        setTimeout(
-                                            () => {
-                                                target.classList.remove('alert-fact')
-                                            },
-                                            5000
-                                        )
-                                        setSelected(expressions[targetId])
-                                    }
-                                }
-                            }>{text}</li>
-                        }
-                    )}</ul>
-                }
-                {
-                    selected() && <>
-                        <h2>{
-                            () => {
-                                const labelRole = store.getLabelRole()
-                                const lang = store.getLang()
-                                return selected().Labels[labelRole][lang]
-                            }
-                        }</h2>
-                        <h3>{
-                            () => {
-                                const lang = store.getLang()
-                                return selected().Context.Period[lang]
-                            }
-                        }</h3>
-                        {
-                            () => {
-                                const labelRole = store.getLabelRole()
-                                const lang = store.getLang()
-                                const vq = selected().Context.VoidQuadrant
-                                const cmg = selected().Context.ContextualMemberGrid
-                                if (!vq?.length && !cmg?.[0]?.length) {
-                                    return null
-                                }
-                                return <ul>{
-                                    vq.map(
-                                        (vcell, i) => {
-                                            let vtext = ''
-                                            let cmtext = ''
-                                            if (vcell.TypedDomain) {
-                                                if (vcell.TypedDomain.Label[labelRole]) {
-                                                    const langVal =
-                                                        vcell.TypedDomain.Label[labelRole][lang]
-                                                    const unlabelledVal =
-                                                        vcell.TypedDomain.Label.Default
-                                                            .Unlabelled
-                                                    vtext = langVal || unlabelledVal
-                                                } else {
-                                                    vtext = vcell.TypedDomain.Label.Default
-                                                        .Unlabelled
-                                                }
-                                            } else {
-                                                if (vcell.Dimension.Label[labelRole]) {
-                                                    const langVal =
-                                                        vcell.Dimension.Label[labelRole][lang]
-                                                    const unlabelledVal =
-                                                        vcell.Dimension.Label.Default.Unlabelled
-                                                        vtext = langVal || unlabelledVal
-                                                } else {
-                                                    vtext = vcell.Dimension.Label.Default.Unlabelled
-                                                }
-                                            }
-                                            const memberCell = cmg[0][i]
-                                            if (memberCell.TypedMember) {
-                                                cmtext = memberCell.TypedMember
-                                            } else if (memberCell.ExplicitMember) {
-                                                if (memberCell.ExplicitMember.Label[labelRole]) {
-                                                    const explicitMember = memberCell.ExplicitMember
-                                                    const langVal =
-                                                        explicitMember.Label[labelRole][lang]
-                                                    const unlabelledVal =
-                                                        explicitMember.Label.Default.Unlabelled
-                                                    cmtext = langVal || unlabelledVal
-                                                } else {
-                                                    cmtext = memberCell.ExplicitMember.Label.Default
-                                                        .Unlabelled
-                                                }
-                                            } else {
-                                                cmtext = ''
-                                            }
-                                            return <li><h3>{vtext}</h3>: <h4>{cmtext}</h4></li>
-                                        }
-                                    )
-                                }</ul>
-                            }
-                        }
-                        <p>Measurement: {selected().Measurement || 'nil'}</p>
-                        <p>Precision: {selected().Precision}</p>
-                        {selected()?.Footnotes.length && <>
-                            <h3>Footnotes</h3>
-                            <ol>
-                                {
-                                    selected().Footnotes.map(
-                                        f => <li>{f}</li>
-                                    )
-                                }
-                            </ol>
-                        </>}
-                        <div id={styles.viewer}><fluent-button appearance='accent' onClick={
-                            e => {
-                                const catalog = store.getCatalog()
-                                const expressions = catalog.Expressions
-                                const ids = Object.keys(expressions)
-                                ids.forEach(
-                                    id => {
-                                        const ixtag = viewerIframe.contentWindow.document.getElementById(id)
-                                        let tagName = ixtag.tagName
-                                        const colonIndex = tagName.indexOf(':')
-                                        if (colonIndex > -1) {
-                                            tagName = tagName.substring(colonIndex + 1)
-                                        }
-                                        switch (tagName.toLowerCase()) {
-                                            case 'nonnumeric':
-                                                const narrativeHighlight = viewerIframe.contentWindow.document.getElementById(highlightPrefix + id)
-                                                ixtag.classList.add('narrative')
-                                                narrativeHighlight.style.width = `0`
-                                                narrativeHighlight.style.display = `none`
-                                                break;
-                                            case 'nonfraction':
-                                                ixtag.classList.add('numeric')
-                                                break;
-                                            default:
-                                        }
-                                    }
-                                )
-                                setSelected(null)
-                            }
-                        }>Clear</fluent-button></div>
-                    </>
-                }
+            <div id={styles.results} ref={facttablediv}>       
             </div>
         </div>
     </div>

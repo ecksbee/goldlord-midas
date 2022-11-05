@@ -41,9 +41,6 @@ export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu, footno
                 console.error(e)
             }
             const cell = e.cell.value
-            if (cell === '...') {
-                return
-            }
             if (!superscripts?.length) {
                 return
             }
