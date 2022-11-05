@@ -163,8 +163,10 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contex
                     let contextref = mynode.getAttribute('contextref')
                     const otherID = await digestMessage(name+'/'+contextref)
                     const othernarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + otherID)
-                    othernarrativeHighlight.style.width = `0`
-                    othernarrativeHighlight.style.display = `none`
+                    if (othernarrativeHighlight) {
+                        othernarrativeHighlight.style.width = `0`
+                        othernarrativeHighlight.style.display = `none`
+                    }
                 })
                 store.setExpressable(null)
             },
@@ -251,7 +253,7 @@ const FactExpressionViewer = () => {
     const [title, setTitle] = createSignal('...')
     const [getGrid, setGrid] = createSignal(null)
     let viewerIframe, facttablediv
-    onMount(async () => {
+    onMount(() => {
         mountFactTable(facttablediv, (grid) => {
             setGrid(grid)
         })
@@ -381,59 +383,6 @@ const FactExpressionViewer = () => {
         try {
             let thisNode = nonNumerics.iterateNext()
             while (thisNode) {
-                let name = thisNode.getAttribute('name')
-                let contextref = thisNode.getAttribute('contextref')
-                const targetId = await digestMessage(name+'/'+contextref)
-                thisNode.addEventListener('click', async ev => {
-                    const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                    const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                    let offNarratives = []
-                    let offNumerics = []
-                    try {
-                        let mynode = mynonNumerics.iterateNext()
-                        while (mynode) {
-                            offNarratives.push(mynode)
-                            mynode = mynonNumerics.iterateNext()
-                        }
-                    }
-                    catch(e) {
-                        console.error(e)
-                    }
-                    try {
-                        let mynode = mynonFractions.iterateNext()
-                        while (mynode) {
-                            offNumerics.push(mynode)
-                            mynode = mynonFractions.iterateNext()
-                        }
-                    }
-                    catch(e) {
-                        console.error(e)
-                    }
-                    offNarratives.forEach(async mynode => {
-                        mynode.classList.remove('narrative')
-                        let name = mynode.getAttribute('name')
-                        let contextref = mynode.getAttribute('contextref')
-                        const offId = await digestMessage(name+'/'+contextref)
-                        if (targetId == offId) {
-                            return
-                        }
-                        const offnarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + offId)
-                        offnarrativeHighlight.style.width = `0`
-                        offnarrativeHighlight.style.display = `none`
-                    })
-                    offNumerics.forEach(mynode => {
-                        mynode.classList.remove('numeric')
-                    })
-                    const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
-                    targetNode.classList.add('narrative')
-                    const clickednarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + targetId)
-                    clickednarrativeHighlight.style.width = `100vw`
-                    clickednarrativeHighlight.style.display = `block`
-                    ev.stopPropagation()
-                    await store.loadExpressable(name, contextref)
-                    const expressable = store.getExpressable()
-                    renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
-                })
                 allNonNumerics.push(thisNode)
                 thisNode = nonNumerics.iterateNext()
             }
@@ -443,6 +392,63 @@ const FactExpressionViewer = () => {
         }
         const iframeBody = viewerIframe.contentDocument.body
         allNonNumerics.forEach(async thisNode => {
+            let name = thisNode.getAttribute('name')
+            let contextref = thisNode.getAttribute('contextref')
+            const targetId = await digestMessage(name+'/'+contextref)
+            thisNode.addEventListener('click', async ev => {
+                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                let offNarratives = []
+                let offNumerics = []
+                try {
+                    let mynode = mynonNumerics.iterateNext()
+                    while (mynode) {
+                        offNarratives.push(mynode)
+                        mynode = mynonNumerics.iterateNext()
+                    }
+                }
+                catch(e) {
+                    console.error(e)
+                }
+                try {
+                    let mynode = mynonFractions.iterateNext()
+                    while (mynode) {
+                        offNumerics.push(mynode)
+                        mynode = mynonFractions.iterateNext()
+                    }
+                }
+                catch(e) {
+                    console.error(e)
+                }
+                offNarratives.forEach(async mynode => {
+                    mynode.classList.remove('narrative')
+                    let myname = mynode.getAttribute('name')
+                    let mycontextref = mynode.getAttribute('contextref')
+                    const offId = await digestMessage(myname+'/'+mycontextref)
+                    if (targetId == offId) {
+                        return
+                    }
+                    const offnarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + offId)
+                    if (offnarrativeHighlight) {
+                        offnarrativeHighlight.style.width = `0`
+                        offnarrativeHighlight.style.display = `none`
+                    }
+                })
+                offNumerics.forEach(mynode => {
+                    mynode.classList.remove('numeric')
+                })
+                const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
+                targetNode.classList.add('narrative')
+                const clickednarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + targetId)
+                if (clickednarrativeHighlight) {
+                    clickednarrativeHighlight.style.width = `100vw`
+                    clickednarrativeHighlight.style.display = `block`
+                }
+                ev.stopPropagation()
+                await store.loadExpressable(name, contextref)
+                const expressable = store.getExpressable()
+                renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
+            })
             thisNode.classList.add('narrative')
             const narrativeHighlight = viewerIframe.contentDocument.createElement('div')
             const top = thisNode.getBoundingClientRect().top
@@ -453,9 +459,6 @@ const FactExpressionViewer = () => {
                 bottom = cont.getBoundingClientRect().bottom
                 continuedat = cont.getAttribute('continuedat')
             }
-            let name = thisNode.getAttribute('name')
-            let contextref = thisNode.getAttribute('contextref')
-            const targetId = await digestMessage(name+'/'+contextref)
             narrativeHighlight.id = highlightPrefix + targetId
             narrativeHighlight.classList.add('narrative-highlight')
             narrativeHighlight.style.top = `${top}px`
