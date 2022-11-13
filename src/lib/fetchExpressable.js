@@ -10,5 +10,11 @@ export default async (name, contextref) => {
     if (response.status >= 400) {
         throw new Error('Bad response from server')
     }
-    return response.json()
+    try {
+        const json = await response.json()
+        return json
+    } catch (e) {
+        return null
+    }
+    
 }
