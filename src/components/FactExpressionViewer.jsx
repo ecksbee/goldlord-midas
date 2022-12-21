@@ -176,7 +176,7 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contex
             narrative = {
                 title: 'Show Narrative',
                 click: () => {
-                    alert('show narrative')
+                    store.showNarrativeFact(-1, -1, 'expressable', -1)
                 },
             }
         }
@@ -184,7 +184,7 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contex
             footnotes = {
                 title: 'Show Footnotes',
                 click: () => {
-                    alert('show footnotes')
+                    store.showFootnotes(-1, -1, 'expressable', -1)
                 },
             }
         }

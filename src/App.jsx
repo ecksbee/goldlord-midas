@@ -56,13 +56,13 @@ const App = () => {
             {
                 store.getHash() && store.getRenderable() && <BrowserPage />
             }
-            {
-                store.getNarrativeFact() && !store.getFootnotes() && <Leaflet />
-            }
-            {
-                store.getFootnotes() && <Leaflet />
-            }
             </>
+        }
+        {
+            store.getNarrativeFact() && !store.getFootnotes() && <Leaflet />
+        }
+        {
+            store.getFootnotes() && <Leaflet />
         }
       </>
     }
