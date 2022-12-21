@@ -52,6 +52,13 @@ const setVisibleArcDiagram = (newVal) => {
     setState('visibleArcDiagram', () => !!newVal)
 }
 const showNarrativeFact = (r, c, q, i) => {
+    console.log("hello")
+    console.dir({
+        rowIndex: r,
+        columnIndex: c,
+        linkbase: q,
+        index: i,
+    })
     setState('narrativeFact', () => ({
         rowIndex: r,
         columnIndex: c,
@@ -63,52 +70,67 @@ const hideNarrativeFact = () => {
     setState('narrativeFact', () => null)
 }
 const narrativeFactInnerHtml = () => {
-    if (!state.narrativeFact && !state.renderable) {
-        return null
+    if (state.narrativeFact) {
+        if (state.renderable) {
+            const { rowIndex, columnIndex, linkbase } = state.narrativeFact
+            const fact = state.renderable[linkbase].FactualQuadrant[rowIndex][columnIndex]
+            return fact?.[state.lang].InnerHtml
+        }
+        if (state.expressable) {
+            return state.expressable.Expression?.[state.lang].InnerHtml
+        }
     }
-    const { rowIndex, columnIndex, linkbase } = state.narrativeFact
-    const fact = state.renderable[linkbase].FactualQuadrant[rowIndex][columnIndex]
-    return fact?.[state.lang].InnerHtml
+    return null
 }
 const narrativeFactLabel = () => {
-    if (!state.narrativeFact && !state.renderable) {
-        return null
+    if (state.narrativeFact) {
+        if (state.renderable) {
+            const { rowIndex, linkbase, index } = state.narrativeFact
+            let label = ''
+            const dataGrid = state.renderable[linkbase]
+            switch (linkbase) {
+                case 'PGrid':
+                    label = dataGrid.IndentedLabels[rowIndex].Label[state.labelRole][state.lang]
+                    break
+                case 'DGrid':
+                    label = dataGrid.RootDomains[index].PrimaryItems[rowIndex].Label[state.labelRole][state.lang]
+                    break
+                case 'CGrid':
+                    label = dataGrid.SummationItems[index].ContributingConcepts[rowIndex].Label[state.labelRole][state.lang]
+                    break
+            }
+            return label
+        }
+        if (state.expressable) {
+            return state.expressable.Labels[state.labelRole][state.lang]
+        }
     }
-    const { rowIndex, linkbase, index } = state.narrativeFact
-    let label = ''
-    const dataGrid = state.renderable[linkbase]
-    switch (linkbase) {
-        case 'PGrid':
-            label = dataGrid.IndentedLabels[rowIndex].Label[state.labelRole][state.lang]
-            break
-        case 'DGrid':
-            label = dataGrid.RootDomains[index].PrimaryItems[rowIndex].Label[state.labelRole][state.lang]
-            break
-        case 'CGrid':
-            label = dataGrid.SummationItems[index].ContributingConcepts[rowIndex].Label[state.labelRole][state.lang]
-            break
-    }
-    return label
+    return null
 }
 const narrativeFactPeriodHeader = () => {
-    if (!state.narrativeFact && !state.renderable) {
-        return null
+    if (state.narrativeFact) {
+        if (state.renderable) {
+            const { columnIndex, linkbase, index } = state.narrativeFact
+            let periodHeader = ''
+            const dataGrid = state.renderable[linkbase]
+            switch (linkbase) {
+                case 'PGrid':
+                    periodHeader = dataGrid.PeriodHeaders[columnIndex][state.lang]
+                    break
+                case 'DGrid':
+                    periodHeader = dataGrid.RootDomains[index].PeriodHeaders[columnIndex][state.lang]
+                    break
+                case 'CGrid':
+                    periodHeader = dataGrid.SummationItems[index].PeriodHeaders[columnIndex][state.lang]
+                    break
+            }
+            return periodHeader
+        }
+        if (state.expressable) {
+            return state.expressable.Context.Period[state.lang]
+        }
     }
-    const { columnIndex, linkbase, index } = state.narrativeFact
-    let periodHeader = ''
-    const dataGrid = state.renderable[linkbase]
-    switch (linkbase) {
-        case 'PGrid':
-            periodHeader = dataGrid.PeriodHeaders[columnIndex][state.lang]
-            break
-        case 'DGrid':
-            periodHeader = dataGrid.RootDomains[index].PeriodHeaders[columnIndex][state.lang]
-            break
-        case 'CGrid':
-            periodHeader = dataGrid.SummationItems[index].PeriodHeaders[columnIndex][state.lang]
-            break
-    }
-    return periodHeader
+    return null
 }
 const showFootnotes = (r, c, q, i) => {
     setState('footnotes', () => ({
@@ -122,46 +144,58 @@ const hideFootnotes = () => {
     setState('footnotes', () => null)
 }
 const footnotesInnerHtml = () => {
-    if (!state.footnotes && !state.renderable) {
-        return null
-    }
-    const { rowIndex, columnIndex, linkbase, index } = state.footnotes
-    const superscripts = footnotesSuperscripts(state.renderable, rowIndex, columnIndex, linkbase, index)
-    if (!superscripts.length) {
-        return null
-    }
-    let text = '<ul>'
-    switch (linkbase) {
-        case 'PGrid':
-            state.renderable[linkbase].Footnotes.forEach(
-                (footnote, i) => {
-                    if (superscripts.includes(i + 1)) {
-                        text += `<li>${footnote}</li>`
+    if (state.footnotes && state.renderable ) {
+        const { rowIndex, columnIndex, linkbase, index } = state.footnotes
+        const superscripts = footnotesSuperscripts(state.renderable, rowIndex, columnIndex, linkbase, index)
+        if (!superscripts.length) {
+            return null
+        }
+        let text = '<ul>'
+        switch (linkbase) {
+            case 'PGrid':
+                state.renderable[linkbase].Footnotes.forEach(
+                    (footnote, i) => {
+                        if (superscripts.includes(i + 1)) {
+                            text += `<li>${footnote}</li>`
+                        }
                     }
-                }
-            )
-            break
-        case 'DGrid':
-            state.renderable[linkbase].RootDomains[index].Footnotes.forEach(
-                (footnote, i) => {
-                    if (superscripts.includes(i + 1)) {
-                        text += `<li>${footnote}</li>`
+                )
+                break
+            case 'DGrid':
+                state.renderable[linkbase].RootDomains[index].Footnotes.forEach(
+                    (footnote, i) => {
+                        if (superscripts.includes(i + 1)) {
+                            text += `<li>${footnote}</li>`
+                        }
                     }
-                }
-            )
-            break
-        case 'CGrid':
-            state.renderable[linkbase].SummationItems[index].Footnotes.forEach(
-                (footnote, i) => {
-                    if (superscripts.includes(i + 1)) {
-                        text += `<li>${footnote}</li>`
+                )
+                break
+            case 'CGrid':
+                state.renderable[linkbase].SummationItems[index].Footnotes.forEach(
+                    (footnote, i) => {
+                        if (superscripts.includes(i + 1)) {
+                            text += `<li>${footnote}</li>`
+                        }
                     }
-                }
-            )
-            break
+                )
+                break
+        }
+        text += '</ul>'
+        return text
     }
-    text += '</ul>'
-    return text
+    if (state.expressable) {
+        let text = '<ul>'
+        state.expressable.Footnotes.forEach(
+            (footnote, i) => {
+                if (superscripts.includes(i + 1)) {
+                    text += `<li>${footnote}</li>`
+                }
+            }
+        )
+        text += '</ul>'
+        return text
+    }
+    return null
 }
 const footnotesSuperscripts = (renderable, rowIndex, columnIndex, linkbase, index) => {
     let ret = []
@@ -179,44 +213,50 @@ const footnotesSuperscripts = (renderable, rowIndex, columnIndex, linkbase, inde
     return ret || []
 }
 const footnotesLabel = () => {
-    if (!state.footnotes && !state.renderable) {
-        return null
+    if (state.footnotes && state.renderable) {
+        const { rowIndex, linkbase, index } = state.footnotes
+        let label = ''
+        const dataGrid = state.renderable[linkbase]
+        switch (linkbase) {
+            case 'PGrid':
+                label = dataGrid.IndentedLabels[rowIndex].Label[state.labelRole][state.lang]
+                break
+            case 'DGrid':
+                label = dataGrid.RootDomains[index].PrimaryItems[rowIndex].Label[state.labelRole][state.lang]
+                break
+            case 'CGrid':
+                label = dataGrid.SummationItems[index].ContributingConcepts[rowIndex].Label[state.labelRole][state.lang]
+                break
+        }
+        return label
     }
-    const { rowIndex, linkbase, index } = state.footnotes
-    let label = ''
-    const dataGrid = state.renderable[linkbase]
-    switch (linkbase) {
-        case 'PGrid':
-            label = dataGrid.IndentedLabels[rowIndex].Label[state.labelRole][state.lang]
-            break
-        case 'DGrid':
-            label = dataGrid.RootDomains[index].PrimaryItems[rowIndex].Label[state.labelRole][state.lang]
-            break
-        case 'CGrid':
-            label = dataGrid.SummationItems[index].ContributingConcepts[rowIndex].Label[state.labelRole][state.lang]
-            break
+    if (state.expressable) {
+        return state.expressable.Labels[state.labelRole][state.lang]
     }
-    return label
+    return null
 }
 const footnotesPeriodHeader = () => {
-    if (!state.footnotes && !state.renderable) {
-        return null
+    if (state.footnotes && state.renderable) {
+        const { columnIndex, linkbase, index } = state.footnotes
+        let periodHeader = ''
+        const dataGrid = state.renderable[linkbase]
+        switch (linkbase) {
+            case 'PGrid':
+                periodHeader = dataGrid.PeriodHeaders[columnIndex][state.lang]
+                break
+            case 'DGrid':
+                periodHeader = dataGrid.RootDomains[index].PeriodHeaders[columnIndex][state.lang]
+                break
+            case 'CGrid':
+                periodHeader = dataGrid.SummationItems[index].PeriodHeaders[columnIndex][state.lang]
+                break
+        }
+        return periodHeader
     }
-    const { columnIndex, linkbase, index } = state.footnotes
-    let periodHeader = ''
-    const dataGrid = state.renderable[linkbase]
-    switch (linkbase) {
-        case 'PGrid':
-            periodHeader = dataGrid.PeriodHeaders[columnIndex][state.lang]
-            break
-        case 'DGrid':
-            periodHeader = dataGrid.RootDomains[index].PeriodHeaders[columnIndex][state.lang]
-            break
-        case 'CGrid':
-            periodHeader = dataGrid.SummationItems[index].PeriodHeaders[columnIndex][state.lang]
-            break
+    if (state.expressable) {
+        return state.expressable.Context.Period[state.lang]
     }
-    return periodHeader
+    return null
 }
 
 const loadCatalog = async () => {
