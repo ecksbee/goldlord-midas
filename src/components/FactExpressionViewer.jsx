@@ -288,7 +288,7 @@ const FactExpressionViewer = () => {
             .narrative-highlight {
                 z-index: 99999;
                 position: absolute;
-                left: 0;
+                right: 0;
                 background-image: linear-gradient(to right, rgba(255,165,0,0), rgba(255,165,0,0.5));
             }
             .alert-fact {
@@ -441,7 +441,7 @@ const FactExpressionViewer = () => {
                 targetNode.classList.add('narrative')
                 const clickednarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + targetId)
                 if (clickednarrativeHighlight) {
-                    clickednarrativeHighlight.style.width = `100vw`
+                    clickednarrativeHighlight.style.width = `98vw`
                     clickednarrativeHighlight.style.display = `block`
                 }
                 ev.stopPropagation()
