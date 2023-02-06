@@ -130,8 +130,8 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contex
                     e.items =[]
                 })
                 theCanvasGrid.data = [['', ''],['', '']]
-                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                 const allNonFractions = []
                 const allNonNumerics = []
                 try {
@@ -317,7 +317,7 @@ const FactExpressionViewer = () => {
             }
         `))
         iframeHead.appendChild(iframeStyle)
-        const nonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+        const nonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
         let allNonFractions = []
         try {
             let thisNode = nonFractions.iterateNext()
@@ -325,8 +325,8 @@ const FactExpressionViewer = () => {
                 let name = thisNode.getAttribute('name')
                 let contextref = thisNode.getAttribute('contextref')
                 thisNode.addEventListener('click', async ev => {
-                    const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                    const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                    const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(), "NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                    const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                     let offNarratives = []
                     let offNumerics = []
                     try {
@@ -378,7 +378,7 @@ const FactExpressionViewer = () => {
         allNonFractions.forEach(thisNode => {
             thisNode.classList.add('numeric')
         })
-        const nonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+        const nonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
         let allNonNumerics = []
         try {
             let thisNode = nonNumerics.iterateNext()
@@ -396,8 +396,8 @@ const FactExpressionViewer = () => {
             let contextref = thisNode.getAttribute('contextref')
             const targetId = await digestMessage(name+'/'+contextref)
             thisNode.addEventListener('click', async ev => {
-                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                 let offNarratives = []
                 let offNumerics = []
                 try {
