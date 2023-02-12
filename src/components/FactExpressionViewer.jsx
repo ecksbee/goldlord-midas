@@ -11,7 +11,7 @@ async function digestMessage(message) {
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
   return hashHex;
 }
-const clearSelection = async (viewerIframe) => {
+const clearSelection = async (viewerIframe, iframeBody, clearBtn) => {
     const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
     const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
     const allNonFractions = []
@@ -51,8 +51,9 @@ const clearSelection = async (viewerIframe) => {
         }
     })
     store.setExpressable(null)
+    iframeBody.removeChild(clearBtn)
 }
-function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contextref) {
+function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contextref, iframeBody, clearBtn) {
     const labelRole = store.getLabelRole()
     const lang = store.getLang()
     let datagrid = []
@@ -170,7 +171,7 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contex
                     e.items =[]
                 })
                 theCanvasGrid.data = [['', ''],['', '']]
-                await clearSelection(viewerIframe) 
+                await clearSelection(viewerIframe, iframeBody, clearBtn) 
             },
         }
         let narrative, footnotes
@@ -254,7 +255,7 @@ function mountFactTable(facttablediv, cb) {
 const FactExpressionViewer = () => {
     const [title, setTitle] = createSignal('...')
     const [getGrid, setGrid] = createSignal(null)
-    let viewerIframe, facttablediv
+    let viewerIframe, facttablediv, clearBtn, iframeBody
     onMount(() => {
         mountFactTable(facttablediv, (grid) => {
             setGrid(grid)
@@ -367,7 +368,7 @@ const FactExpressionViewer = () => {
                         ev.stopPropagation()
                         await store.loadExpressable(name, contextref)
                         const expressable = store.getExpressable()
-                        renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
+                        renderExpression(expressable, getGrid(), viewerIframe, name, contextref, iframeBody, clearBtn)
                     })
                     allNonFractions.push(thisNode)
                     thisNode = nonFractions.iterateNext()
@@ -391,7 +392,7 @@ const FactExpressionViewer = () => {
             catch(e) {
                 console.error(e)
             }
-            const iframeBody = viewerIframe.contentDocument.body
+            iframeBody = viewerIframe.contentDocument.body
             allNonNumerics.forEach(async thisNode => {
                 let name = thisNode.getAttribute('name')
                 let contextref = thisNode.getAttribute('contextref')
@@ -444,7 +445,7 @@ const FactExpressionViewer = () => {
                     if (clickednarrativeHighlight) {
                         clickednarrativeHighlight.style.width = `98vw`
                         clickednarrativeHighlight.style.display = `block`
-                        const clearBtn = viewerIframe.contentDocument.createElement('button')
+                        clearBtn = viewerIframe.contentDocument.createElement('button')
                         clearBtn.innerText = '[X]'
                         const top = clickednarrativeHighlight.getBoundingClientRect().top
                         clearBtn.style.cursor = 'pointer'
@@ -457,19 +458,18 @@ const FactExpressionViewer = () => {
                         clearBtn.style['z-index'] = 99999 + 2
                         clearBtn.style.position = 'fixed'
                         clearBtn.addEventListener('click', async ee => {
-                            await clearSelection(viewerIframe)
+                            await clearSelection(viewerIframe, iframeBody, clearBtn)
                             grid.addEventListener('contextmenu', e => {
                                 e.items =[]
                             })
                             grid.data = [['', ''],['', '']]
-                            iframeBody.removeChild(clearBtn)
                         })
                         iframeBody.appendChild(clearBtn)
                     }
                     ev.stopPropagation()
                     await store.loadExpressable(name, contextref)
                     const expressable = store.getExpressable()
-                    renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
+                    renderExpression(expressable, getGrid(), viewerIframe, name, contextref, iframeBody, clearBtn)
                 })
                 thisNode.classList.add('narrative')
                 const narrativeHighlight = viewerIframe.contentDocument.createElement('div')
