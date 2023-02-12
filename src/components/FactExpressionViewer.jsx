@@ -441,6 +441,13 @@ const FactExpressionViewer = () => {
                     })
                     const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
                     targetNode.classList.add('narrative')
+                    if (clearBtn) {
+                        try {
+                            iframeBody.removeChild(clearBtn)
+                        } catch(err) {
+                            console.error(err)
+                        }
+                    }
                     const clickednarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + targetId)
                     if (clickednarrativeHighlight) {
                         clickednarrativeHighlight.style.width = `98vw`
@@ -456,7 +463,7 @@ const FactExpressionViewer = () => {
                         clearBtn.style.top = top
                         clearBtn.style.right = 0
                         clearBtn.style['z-index'] = 99999 + 2
-                        clearBtn.style.position = 'fixed'
+                        clearBtn.style.position = 'absolute'
                         clearBtn.addEventListener('click', async ee => {
                             await clearSelection(viewerIframe, iframeBody, clearBtn)
                             grid.addEventListener('contextmenu', e => {
