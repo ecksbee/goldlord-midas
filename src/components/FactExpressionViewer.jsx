@@ -363,8 +363,10 @@ const FactExpressionViewer = () => {
                         offNumerics.forEach(mynode => {
                             mynode.classList.remove('numeric')
                         })
-                        const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
-                        targetNode.classList.add('numeric')
+                        const targetNodes = viewerIframe.contentDocument.querySelectorAll(`[contextref="${contextref}"][name="${name}"]`)
+                        targetNodes.forEach(targetNode => {
+                            targetNode.classList.add('numeric')
+                        })
                         ev.stopPropagation()
                         await store.loadExpressable(name, contextref)
                         const expressable = store.getExpressable()
