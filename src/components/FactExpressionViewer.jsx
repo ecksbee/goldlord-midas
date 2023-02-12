@@ -454,13 +454,14 @@ const FactExpressionViewer = () => {
                         clickednarrativeHighlight.style.display = `block`
                         clearBtn = viewerIframe.contentDocument.createElement('button')
                         clearBtn.innerText = '[X]'
-                        const top = clickednarrativeHighlight.getBoundingClientRect().top
+                        const scrollY = viewerIframe.contentWindow.scrollY || 0
+                        const top = scrollY + clickednarrativeHighlight.getBoundingClientRect().top
                         clearBtn.style.cursor = 'pointer'
                         clearBtn.style.color = 'black'
                         clearBtn.style.border = 'none'
                         clearBtn.style.background = 'transparent'
                         clearBtn.style.padding = '0!important'
-                        clearBtn.style.top = top
+                        clearBtn.style.top = `${top}px`
                         clearBtn.style.right = 0
                         clearBtn.style['z-index'] = 99999 + 2
                         clearBtn.style.position = 'absolute'
