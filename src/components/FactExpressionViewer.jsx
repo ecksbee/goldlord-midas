@@ -11,7 +11,47 @@ async function digestMessage(message) {
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
   return hashHex;
 }
-
+const clearSelection = async (viewerIframe) => {
+    const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+    const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+    const allNonFractions = []
+    const allNonNumerics = []
+    try {
+        let mynode = mynonNumerics.iterateNext()
+        while (mynode) {
+            allNonNumerics.push(mynode)
+            mynode = mynonNumerics.iterateNext()
+        }
+    }
+    catch(e) {
+        console.error(e)
+    }
+    try {
+        let mynode = mynonFractions.iterateNext()
+        while (mynode) {
+            allNonFractions.push(mynode)
+            mynode = mynonFractions.iterateNext()
+        }
+    }
+    catch(e) {
+        console.error(e)
+    }
+    allNonFractions.forEach(mynode => {
+        mynode.classList.add('numeric')
+    })
+    allNonNumerics.forEach(async mynode => {
+        mynode.classList.add('narrative')
+        let name = mynode.getAttribute('name')
+        let contextref = mynode.getAttribute('contextref')
+        const otherID = await digestMessage(name+'/'+contextref)
+        const othernarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + otherID)
+        if (othernarrativeHighlight) {
+            othernarrativeHighlight.style.width = `0`
+            othernarrativeHighlight.style.display = `none`
+        }
+    })
+    store.setExpressable(null)
+}
 function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contextref) {
     const labelRole = store.getLabelRole()
     const lang = store.getLang()
@@ -130,45 +170,7 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contex
                     e.items =[]
                 })
                 theCanvasGrid.data = [['', ''],['', '']]
-                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                const allNonFractions = []
-                const allNonNumerics = []
-                try {
-                    let mynode = mynonNumerics.iterateNext()
-                    while (mynode) {
-                        allNonNumerics.push(mynode)
-                        mynode = mynonNumerics.iterateNext()
-                    }
-                }
-                catch(e) {
-                    console.error(e)
-                }
-                try {
-                    let mynode = mynonFractions.iterateNext()
-                    while (mynode) {
-                        allNonFractions.push(mynode)
-                        mynode = mynonFractions.iterateNext()
-                    }
-                }
-                catch(e) {
-                    console.error(e)
-                }
-                allNonFractions.forEach(mynode => {
-                    mynode.classList.add('numeric')
-                })
-                allNonNumerics.forEach(async mynode => {
-                    mynode.classList.add('narrative')
-                    let name = mynode.getAttribute('name')
-                    let contextref = mynode.getAttribute('contextref')
-                    const otherID = await digestMessage(name+'/'+contextref)
-                    const othernarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + otherID)
-                    if (othernarrativeHighlight) {
-                        othernarrativeHighlight.style.width = `0`
-                        othernarrativeHighlight.style.display = `none`
-                    }
-                })
-                store.setExpressable(null)
+                await clearSelection(viewerIframe) 
             },
         }
         let narrative, footnotes
@@ -256,76 +258,146 @@ const FactExpressionViewer = () => {
     onMount(() => {
         mountFactTable(facttablediv, (grid) => {
             setGrid(grid)
-        })
-        const catalog = store.getCatalog()
-        setTitle(catalog.DocumentName)
-        const ixbrldocument = store.getIxbrlDocument()
-        viewerIframe.contentDocument.write(ixbrldocument)
-        const iframeHead = viewerIframe.contentDocument.head
-        const iframeStyle = viewerIframe.contentDocument.createElement('style')
-        iframeHead.appendChild(iframeStyle)
-        iframeStyle.appendChild(document.createTextNode(`
-            .numeric {
-                border-top: 1pt solid orange;
-                border-bottom: 1pt solid orange;
-                display: inline;
-            }
-            .numeric:hover {
-                border-top: 3pt solid orange;
-                border-bottom: 3pt solid orange;
-            }
-            .narrative {
-                box-shadow: -2px 0px 0px 0px orange, 2px 0px 0px 0px orange;
-            }
-            .narrative::before {
-                content: "  ";
-                background-color: orange;
-            }
-            .narrative::after {
-                content: "  ";
-                background-color: orange;
-            }
-            .narrative-highlight {
-                z-index: 99999;
-                position: absolute;
-                right: 0;
-                background-image: linear-gradient(to right, rgba(255,165,0,0), rgba(255,165,0,0.5));
-            }
-            .alert-fact {
-                animation-name: alert-fact;
-                animation-duration: 4s;
-                animation-timing-function: linear;
-                animation-iteration-count: 1;
-            }
-            @keyframes alert-fact {
-                0%   {
-                    transform: scale(2);
-                    background-color: yellow;
+            const catalog = store.getCatalog()
+            setTitle(catalog.DocumentName)
+            const ixbrldocument = store.getIxbrlDocument()
+            viewerIframe.contentDocument.write(ixbrldocument)
+            const iframeHead = viewerIframe.contentDocument.head
+            const iframeStyle = viewerIframe.contentDocument.createElement('style')
+            iframeHead.appendChild(iframeStyle)
+            iframeStyle.appendChild(document.createTextNode(`
+                .numeric {
+                    border-top: 1pt solid orange;
+                    border-bottom: 1pt solid orange;
+                    display: inline;
                 }
-                25%  {
-                    transform: scale(1.5);
+                .numeric:hover {
+                    border-top: 3pt solid orange;
+                    border-bottom: 3pt solid orange;
+                }
+                .narrative {
+                    box-shadow: -2px 0px 0px 0px orange, 2px 0px 0px 0px orange;
+                }
+                .narrative::before {
+                    content: "  ";
                     background-color: orange;
                 }
-                50%  {
-                    transform: scale(2);
-                    background-color: unset;
-                }
-                100% {
-                    transform: scale(1);
+                .narrative::after {
+                    content: "  ";
                     background-color: orange;
                 }
+                .narrative-highlight {
+                    z-index: 99999;
+                    position: absolute;
+                    right: 0;
+                    background-image: linear-gradient(to right, rgba(255,165,0,0), rgba(255,165,0,0.5));
+                }
+                .alert-fact {
+                    animation-name: alert-fact;
+                    animation-duration: 4s;
+                    animation-timing-function: linear;
+                    animation-iteration-count: 1;
+                }
+                @keyframes alert-fact {
+                    0%   {
+                        transform: scale(2);
+                        background-color: yellow;
+                    }
+                    25%  {
+                        transform: scale(1.5);
+                        background-color: orange;
+                    }
+                    50%  {
+                        transform: scale(2);
+                        background-color: unset;
+                    }
+                    100% {
+                        transform: scale(1);
+                        background-color: orange;
+                    }
+                }
+            `))
+            iframeHead.appendChild(iframeStyle)
+            const nonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+            let allNonFractions = []
+            try {
+                let thisNode = nonFractions.iterateNext()
+                while (thisNode) {
+                    let name = thisNode.getAttribute('name')
+                    let contextref = thisNode.getAttribute('contextref')
+                    thisNode.addEventListener('click', async ev => {
+                        const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(), "NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                        const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                        let offNarratives = []
+                        let offNumerics = []
+                        try {
+                            let mynode = mynonNumerics.iterateNext()
+                            while (mynode) {
+                                offNarratives.push(mynode)
+                                mynode = mynonNumerics.iterateNext()
+                            }
+                        }
+                        catch(e) {
+                            console.error(e)
+                        }
+                        try {
+                            let mynode = mynonFractions.iterateNext()
+                            while (mynode) {
+                                offNumerics.push(mynode)
+                                mynode = mynonFractions.iterateNext()
+                            }
+                        }
+                        catch(e) {
+                            console.error(e)
+                        }
+                        offNarratives.forEach(async mynode => {
+                            mynode.classList.remove('narrative')
+                            let name = mynode.getAttribute('name')
+                            let contextref = mynode.getAttribute('contextref')
+                            const offId = await digestMessage(name+'/'+contextref)
+                            const offnarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + offId)
+                            offnarrativeHighlight.style.width = `0`
+                            offnarrativeHighlight.style.display = `none`
+                        })
+                        offNumerics.forEach(mynode => {
+                            mynode.classList.remove('numeric')
+                        })
+                        const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
+                        targetNode.classList.add('numeric')
+                        ev.stopPropagation()
+                        await store.loadExpressable(name, contextref)
+                        const expressable = store.getExpressable()
+                        renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
+                    })
+                    allNonFractions.push(thisNode)
+                    thisNode = nonFractions.iterateNext()
+                }
             }
-        `))
-        iframeHead.appendChild(iframeStyle)
-        const nonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-        let allNonFractions = []
-        try {
-            let thisNode = nonFractions.iterateNext()
-            while (thisNode) {
+            catch(e) {
+                console.error(e)
+            }
+            allNonFractions.forEach(thisNode => {
+                thisNode.classList.add('numeric')
+            })
+            const nonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+            let allNonNumerics = []
+            try {
+                let thisNode = nonNumerics.iterateNext()
+                while (thisNode) {
+                    allNonNumerics.push(thisNode)
+                    thisNode = nonNumerics.iterateNext()
+                }
+            }
+            catch(e) {
+                console.error(e)
+            }
+            const iframeBody = viewerIframe.contentDocument.body
+            allNonNumerics.forEach(async thisNode => {
                 let name = thisNode.getAttribute('name')
                 let contextref = thisNode.getAttribute('contextref')
+                const targetId = await digestMessage(name+'/'+contextref)
                 thisNode.addEventListener('click', async ev => {
-                    const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(), "NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+                    const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                     const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
                     let offNarratives = []
                     let offNumerics = []
@@ -351,121 +423,72 @@ const FactExpressionViewer = () => {
                     }
                     offNarratives.forEach(async mynode => {
                         mynode.classList.remove('narrative')
-                        let name = mynode.getAttribute('name')
-                        let contextref = mynode.getAttribute('contextref')
-                        const offId = await digestMessage(name+'/'+contextref)
+                        let myname = mynode.getAttribute('name')
+                        let mycontextref = mynode.getAttribute('contextref')
+                        const offId = await digestMessage(myname+'/'+mycontextref)
+                        if (targetId == offId) {
+                            return
+                        }
                         const offnarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + offId)
-                        offnarrativeHighlight.style.width = `0`
-                        offnarrativeHighlight.style.display = `none`
+                        if (offnarrativeHighlight) {
+                            offnarrativeHighlight.style.width = `0`
+                            offnarrativeHighlight.style.display = `none`
+                        }
                     })
                     offNumerics.forEach(mynode => {
                         mynode.classList.remove('numeric')
                     })
                     const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
-                    targetNode.classList.add('numeric')
+                    targetNode.classList.add('narrative')
+                    const clickednarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + targetId)
+                    if (clickednarrativeHighlight) {
+                        clickednarrativeHighlight.style.width = `98vw`
+                        clickednarrativeHighlight.style.display = `block`
+                        const clearBtn = viewerIframe.contentDocument.createElement('button')
+                        clearBtn.innerText = '[X]'
+                        const top = clickednarrativeHighlight.getBoundingClientRect().top
+                        clearBtn.style.cursor = 'pointer'
+                        clearBtn.style.color = 'black'
+                        clearBtn.style.border = 'none'
+                        clearBtn.style.background = 'transparent'
+                        clearBtn.style.padding = '0!important'
+                        clearBtn.style.top = top
+                        clearBtn.style.right = 0
+                        clearBtn.style['z-index'] = 99999 + 2
+                        clearBtn.style.position = 'fixed'
+                        clearBtn.addEventListener('click', async ee => {
+                            await clearSelection(viewerIframe)
+                            grid.addEventListener('contextmenu', e => {
+                                e.items =[]
+                            })
+                            grid.data = [['', ''],['', '']]
+                            iframeBody.removeChild(clearBtn)
+                        })
+                        iframeBody.appendChild(clearBtn)
+                    }
                     ev.stopPropagation()
                     await store.loadExpressable(name, contextref)
                     const expressable = store.getExpressable()
                     renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
                 })
-                allNonFractions.push(thisNode)
-                thisNode = nonFractions.iterateNext()
-            }
-        }
-        catch(e) {
-            console.error(e)
-        }
-        allNonFractions.forEach(thisNode => {
-            thisNode.classList.add('numeric')
-        })
-        const nonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-        let allNonNumerics = []
-        try {
-            let thisNode = nonNumerics.iterateNext()
-            while (thisNode) {
-                allNonNumerics.push(thisNode)
-                thisNode = nonNumerics.iterateNext()
-            }
-        }
-        catch(e) {
-            console.error(e)
-        }
-        const iframeBody = viewerIframe.contentDocument.body
-        allNonNumerics.forEach(async thisNode => {
-            let name = thisNode.getAttribute('name')
-            let contextref = thisNode.getAttribute('contextref')
-            const targetId = await digestMessage(name+'/'+contextref)
-            thisNode.addEventListener('click', async ev => {
-                const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
-                let offNarratives = []
-                let offNumerics = []
-                try {
-                    let mynode = mynonNumerics.iterateNext()
-                    while (mynode) {
-                        offNarratives.push(mynode)
-                        mynode = mynonNumerics.iterateNext()
-                    }
+                thisNode.classList.add('narrative')
+                const narrativeHighlight = viewerIframe.contentDocument.createElement('div')
+                const top = thisNode.getBoundingClientRect().top
+                let bottom = thisNode.getBoundingClientRect().bottom
+                let continuedat = thisNode.getAttribute('continuedat')
+                while (continuedat) {
+                    let cont = viewerIframe.contentDocument.getElementById(continuedat)
+                    bottom = cont.getBoundingClientRect().bottom
+                    continuedat = cont.getAttribute('continuedat')
                 }
-                catch(e) {
-                    console.error(e)
-                }
-                try {
-                    let mynode = mynonFractions.iterateNext()
-                    while (mynode) {
-                        offNumerics.push(mynode)
-                        mynode = mynonFractions.iterateNext()
-                    }
-                }
-                catch(e) {
-                    console.error(e)
-                }
-                offNarratives.forEach(async mynode => {
-                    mynode.classList.remove('narrative')
-                    let myname = mynode.getAttribute('name')
-                    let mycontextref = mynode.getAttribute('contextref')
-                    const offId = await digestMessage(myname+'/'+mycontextref)
-                    if (targetId == offId) {
-                        return
-                    }
-                    const offnarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + offId)
-                    if (offnarrativeHighlight) {
-                        offnarrativeHighlight.style.width = `0`
-                        offnarrativeHighlight.style.display = `none`
-                    }
-                })
-                offNumerics.forEach(mynode => {
-                    mynode.classList.remove('numeric')
-                })
-                const targetNode = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
-                targetNode.classList.add('narrative')
-                const clickednarrativeHighlight = viewerIframe.contentDocument.getElementById(highlightPrefix + targetId)
-                if (clickednarrativeHighlight) {
-                    clickednarrativeHighlight.style.width = `98vw`
-                    clickednarrativeHighlight.style.display = `block`
-                }
-                ev.stopPropagation()
-                await store.loadExpressable(name, contextref)
-                const expressable = store.getExpressable()
-                renderExpression(expressable, getGrid(), viewerIframe, name, contextref)
+                narrativeHighlight.id = highlightPrefix + targetId
+                narrativeHighlight.classList.add('narrative-highlight')
+                narrativeHighlight.style.top = `${top}px`
+                narrativeHighlight.style.height = `${bottom - top}px`
+                narrativeHighlight.style.width = `0`
+                narrativeHighlight.style.display = `none`
+                iframeBody.appendChild(narrativeHighlight)
             })
-            thisNode.classList.add('narrative')
-            const narrativeHighlight = viewerIframe.contentDocument.createElement('div')
-            const top = thisNode.getBoundingClientRect().top
-            let bottom = thisNode.getBoundingClientRect().bottom
-            let continuedat = thisNode.getAttribute('continuedat')
-            while (continuedat) {
-                let cont = viewerIframe.contentDocument.getElementById(continuedat)
-                bottom = cont.getBoundingClientRect().bottom
-                continuedat = cont.getAttribute('continuedat')
-            }
-            narrativeHighlight.id = highlightPrefix + targetId
-            narrativeHighlight.classList.add('narrative-highlight')
-            narrativeHighlight.style.top = `${top}px`
-            narrativeHighlight.style.height = `${bottom - top}px`
-            narrativeHighlight.style.width = `0`
-            narrativeHighlight.style.display = `none`
-            iframeBody.appendChild(narrativeHighlight)
         })
     })
     return <div style={{
