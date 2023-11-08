@@ -11,6 +11,10 @@ async function digestMessage(message) {
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
   return hashHex;
 }
+let focus = {
+    name: '',
+    contextref: ''
+}
 const clearSelection = async (viewerIframe, iframeBody, clearBtn) => {
     const mynonNumerics = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonnumeric") or contains(name(),"NONNUMERIC")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
     const mynonFractions = viewerIframe.contentDocument.evaluate('//*[contains(name(),"nonfraction") or contains(name(),"NONFRACTION")]', viewerIframe.contentDocument, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
@@ -52,8 +56,12 @@ const clearSelection = async (viewerIframe, iframeBody, clearBtn) => {
     })
     store.setExpressable(null)
     iframeBody.removeChild(clearBtn)
+    focus = {
+        name: '',
+        contextref: ''
+    }
 }
-function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contextref, iframeBody, clearBtn) {
+function renderExpression(expressable, theCanvasGrid, viewerIframe, iframeBody, clearBtn) {
     const labelRole = store.getLabelRole()
     const lang = store.getLang()
     let datagrid = []
@@ -132,6 +140,7 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contex
     }
     datagrid.push([concept, factvalue, ''])
     theCanvasGrid.data = datagrid
+    theCanvasGrid.removeEventListener()
     theCanvasGrid.addEventListener('afterrendercell', function (e) {
         let superscripts = expressable.Footnotes.map((_, i) => i.toString())
         const cell = e.cell.value
@@ -153,7 +162,7 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, name, contex
         const scroll = {
             title: 'Scroll Into View',
             click: () => {
-                const target = viewerIframe.contentDocument.querySelector(`[contextref="${contextref}"][name="${name}"]`)
+                const target = viewerIframe.contentDocument.querySelector(`[contextref="${focus.contextref}"][name="${focus.name}"]`)
                 target.scrollIntoView()
                 target.classList.add('alert-fact')
                 setTimeout(
@@ -370,7 +379,11 @@ const FactExpressionViewer = () => {
                         ev.stopPropagation()
                         await store.loadExpressable(name, contextref)
                         const expressable = store.getExpressable()
-                        renderExpression(expressable, getGrid(), viewerIframe, name, contextref, iframeBody, clearBtn)
+                        focus = {
+                            name,
+                            contextref
+                        }
+                        renderExpression(expressable, getGrid(), viewerIframe, iframeBody, clearBtn)
                     })
                     allNonFractions.push(thisNode)
                     thisNode = nonFractions.iterateNext()
@@ -479,7 +492,11 @@ const FactExpressionViewer = () => {
                     ev.stopPropagation()
                     await store.loadExpressable(name, contextref)
                     const expressable = store.getExpressable()
-                    renderExpression(expressable, getGrid(), viewerIframe, name, contextref, iframeBody, clearBtn)
+                    focus = {
+                        name,
+                        contextref
+                    }
+                    renderExpression(expressable, getGrid(), viewerIframe, iframeBody, clearBtn)
                 })
                 thisNode.classList.add('narrative')
                 const narrativeHighlight = viewerIframe.contentDocument.createElement('div')
