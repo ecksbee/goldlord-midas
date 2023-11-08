@@ -1,3 +1,19 @@
+@font-face {
+  font-family: DejavuSansCondensed;
+  src: url("/dejavu-sans/ttf/DejaVuSansCondensed.ttf") format("truetype");
+}
+@font-face {
+  font-family: GelasioRegular;
+  src: url("/gelasio/Gelasio-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: CarlitoRegular;
+  src: url("/carlito/Carlito-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: CourierPrime;
+  src: url("/CourierPrime/CourierPrime-Regular.ttf") format("truetype");
+}
 body {
   margin: 0;
   background: #efefef;
@@ -34,4 +50,12 @@ h4 {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+}
+#branding {
+  font-size: 10pt;
+  position: fixed;
+  z-index: 10000;
+  bottom: 0;
+  right: 0;
+  margin: 0 .5% .5% 0;
 }
