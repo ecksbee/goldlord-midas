@@ -1,6 +1,9 @@
 export default (summationItem, labelRole, lang) => {
     const grid = []
-    const summationItemName = summationItem.Label[labelRole][lang]
+    const summationItemName = summationItem.Label[labelRole]? 
+        summationItem.Label[labelRole][lang]
+        :
+        summationItem.Label.Default.Unlabelled
     const maxRow =
         summationItem.ContributingConcepts.length +
         summationItem.ContextualMemberGrid.length +
