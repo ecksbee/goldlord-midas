@@ -4,15 +4,13 @@ import store from '../lib/store'
 import dataGrid from '../lib/dataGrid'
 import transformPGrid from '../lib/transformPGrid'
 
-const PGridViewer = () => {
+const PGridViewer = ({labelRole, lang}) => {
     let pGridDiv
     onMount(()=> {
         try {
             const renderable = store.getRenderable()
             const pGrid = renderable.PGrid
-            const blob = transformPGrid(pGrid)
-            const lang = 'Unlabelled'
-            const labelRole = 'Default'
+            const blob = transformPGrid(pGrid, labelRole, lang)
             setTimeout(() => {
                 dataGrid(blob.grid, blob.numFrozenRows, 1, pGridDiv, (grid, e) => {
                     if (e.cell) {

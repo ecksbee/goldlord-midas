@@ -1,7 +1,5 @@
 
-export default rootDomain => {
-    const lang = 'Unlabelled'
-    const labelRole = 'Default'
+export default (rootDomain, labelRole, lang) => {
     const grid = []
     let primaryItems = [
         rootDomain

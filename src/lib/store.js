@@ -15,7 +15,7 @@ const initialState = {
     error: false,
     visibleArcDiagram: false,
     narrativeFact: null,
-    lang: 'Unlabelled',
+    lang: 'Truncated',
     labelRole: 'Default',
     footnotes: null,
 }

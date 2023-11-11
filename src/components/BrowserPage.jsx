@@ -10,6 +10,8 @@ const BrowserPage = () => {
     const [currentTab, setCurrentTab] = createSignal('presentation')
     const catalog = store.getCatalog()
     const hash = store.getHash()
+    const labelRole = store.getLabelRole()
+    const lang = store.getLang()
     const relationshipSetsLen = catalog.RelationshipSets.length
     let relationshipSet
     let subject
@@ -68,13 +70,13 @@ const BrowserPage = () => {
                     <fluent-tab id='calculation' onClick={e => setCurrentTab('calculation')}>
                         Calculation</fluent-tab>
                     <fluent-tab-panel id='presentationPanel'>
-                        { currentTab() === 'presentation' && <PGridViewer /> }
+                        { currentTab() === 'presentation' && <PGridViewer labelRole={labelRole} lang={lang} /> }
                     </fluent-tab-panel>
                     <fluent-tab-panel id='definitionPanel'>
-                        { currentTab() === 'definition' && <DGridViewer /> }
+                        { currentTab() === 'definition' && <DGridViewer labelRole={labelRole} lang={lang} /> }
                     </fluent-tab-panel>
                     <fluent-tab-panel id='calculationPanel'>
-                        { currentTab() === 'calculation' && <CGridViewer />} 
+                        { currentTab() === 'calculation' && <CGridViewer labelRole={labelRole} lang={lang} />} 
                     </fluent-tab-panel>
                 </fluent-tabs>
             </div>
