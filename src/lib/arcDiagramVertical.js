@@ -18,8 +18,9 @@ export default (data, mount) => {
     const y = d3.scalePoint(data.nodes.map(d => d.id).sort(d3.ascending), [margin.top, height - margin.bottom])
     const color = d3.scaleOrdinal(data.nodes.map(d => d.id).sort(d3.ascending), d3.schemeCategory10)
     const graph = (() => {
-      const nodes = data.nodes.map(({id, group}) => ({
+      const nodes = data.nodes.map(({id, name, group}) => ({
         id,
+        name,
         sourceLinks: [],
         targetLinks: [],
         group

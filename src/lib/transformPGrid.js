@@ -1,6 +1,4 @@
-export default pGrid => {
-    const lang = 'Unlabelled'
-    const labelRole = 'Default'
+export default (pGrid, labelRole, lang) => {
     const grid = []
     const maxRow =
         pGrid.IndentedLabels.length + pGrid.ContextualMemberGrid.length + 1

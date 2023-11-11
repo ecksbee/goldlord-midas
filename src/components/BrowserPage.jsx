@@ -4,6 +4,7 @@ import store from '../lib/store'
 import PGridViewer from './PGridViewer'
 import DGridViewer from './DGridViewer'
 import CGridViewer from './CGridViewer'
+import LabelManager from './LabelManager'
 import styles from './BrowserPage.module.css'
 
 const BrowserPage = () => {
@@ -67,14 +68,19 @@ const BrowserPage = () => {
                         Definition</fluent-tab>
                     <fluent-tab id='calculation' onClick={e => setCurrentTab('calculation')}>
                         Calculation</fluent-tab>
+                    <fluent-tab id='label' onClick={e => setCurrentTab('label')}>
+                        Label</fluent-tab>
                     <fluent-tab-panel id='presentationPanel'>
-                        { currentTab() === 'presentation' && <PGridViewer /> }
+                        { currentTab() === 'presentation' && <PGridViewer labelRole={store.getLabelRole()} lang={store.getLang()} /> }
                     </fluent-tab-panel>
                     <fluent-tab-panel id='definitionPanel'>
-                        { currentTab() === 'definition' && <DGridViewer /> }
+                        { currentTab() === 'definition' && <DGridViewer labelRole={store.getLabelRole()} lang={store.getLang()} /> }
                     </fluent-tab-panel>
                     <fluent-tab-panel id='calculationPanel'>
-                        { currentTab() === 'calculation' && <CGridViewer />} 
+                        { currentTab() === 'calculation' && <CGridViewer labelRole={store.getLabelRole()} lang={store.getLang()} />} 
+                    </fluent-tab-panel>
+                    <fluent-tab-panel id='labelManager'>
+                        { currentTab() === 'label' && <LabelManager />} 
                     </fluent-tab-panel>
                 </fluent-tabs>
             </div>

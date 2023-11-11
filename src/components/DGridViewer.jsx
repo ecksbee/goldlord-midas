@@ -6,7 +6,7 @@ import arcDiagram from '../lib/arcDiagramVertical'
 import transformRootDomain from '../lib/transformRootDomain'
 import transformDRS from '../lib/transformDRS'
 
-const DGridViewer = () => {
+const DGridViewer = ({labelRole, lang}) => {
     let dGridDiv
     let arcDiagramDiv
     onMount(()=> {
@@ -23,9 +23,7 @@ const DGridViewer = () => {
         }
         const rdIndex = 0
         const rootDomain = dGrid.RootDomains[rdIndex]
-        const rootDomainBlob = transformRootDomain(rootDomain)
-        const lang = 'Unlabelled'
-        const labelRole = 'Default'
+        const rootDomainBlob = transformRootDomain(rootDomain, labelRole, lang)
         setTimeout(() => {
             dataGrid(rootDomainBlob.grid, rootDomainBlob.numFrozenRows, 1, dGridDiv, (grid, e) => {
                 if (e.cell) {
@@ -73,7 +71,7 @@ const DGridViewer = () => {
         }, 100)
         setTimeout(
             () => {
-                const arcDiagramData = transformDRS(dGrid.DRS)
+                const arcDiagramData = transformDRS(dGrid.DRS, labelRole, lang)
                 arcDiagram(arcDiagramData, arcDiagramDiv)
             },
             100

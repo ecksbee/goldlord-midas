@@ -4,7 +4,7 @@ import store from '../lib/store'
 import dataGrid from '../lib/dataGrid'
 import transformSummationItem from '../lib/transformSummationItem'
 
-const CGridViewer = () => {
+const CGridViewer = ({labelRole, lang}) => {
     let summationItemDiv
     onMount(()=> {
         try {
@@ -21,9 +21,7 @@ const CGridViewer = () => {
             }
             const siIndex = 0
             const summationItem = cGrid.SummationItems[siIndex]
-            const blob = transformSummationItem(summationItem)
-            const lang = 'Unlabelled'
-            const labelRole = 'Default'
+            const blob = transformSummationItem(summationItem, labelRole, lang)
             setTimeout(() => {
                 dataGrid(blob.grid, blob.numFrozenRows, 2, summationItemDiv, (grid, e) => {
                     if (e.cell) {
@@ -54,7 +52,7 @@ const CGridViewer = () => {
                         e.items.push({
                             title: item.Href,
                             click: () => {
-                                const blob = transformSummationItem(item)
+                                const blob = transformSummationItem(item, labelRole, lang)
                                 grid.data = blob.grid
                                 grid.frozenRow = blob.numFrozenRows
                                 grid.draw()

@@ -15,12 +15,18 @@ const initialState = {
     error: false,
     visibleArcDiagram: false,
     narrativeFact: null,
-    lang: 'Unlabelled',
+    lang: 'Truncated',
     labelRole: 'Default',
     footnotes: null,
 }
 
 const [state, setState] = createStore(initialState)
+const setLang = (newVal) => {
+    setState('lang', () => newVal)
+}
+const setLabelRole = (newVal) => {
+    setState('labelRole', () => newVal)
+}
 const showFactExpressionViewer = (newVal) => {
     setState('mode', () => 'fact_expression_viewer')
 }
@@ -365,9 +371,9 @@ export default {
     narrativeFactLabel,
     narrativeFactPeriodHeader,
     getLang: () => state.lang,
-    // setLang
+    setLang,
     getLabelRole: () => state.labelRole,
-    // setLabelRole
+    setLabelRole,
     getFootnotes: () => state.footnotes,
     showFootnotes,
     hideFootnotes,
