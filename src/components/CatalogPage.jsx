@@ -14,10 +14,11 @@ const CatalogPage = () => {
     const initRoleURI = rsets[0].RoleURI
     const [subject, setSubject] = createSignal(initSubject)
     const [relationshipSet, setRelationshipSet] = createSignal(initRoleURI)
-    return (<div id={styles['selector-panel']}>
+    return (<div id={styles['selector-container']}>
+        <div id={styles['selector-panel']}>
             <h1 id={styles.title}>{title}</h1>
             <h2>Entity</h2>
-            <fluent-combobox id={styles.subjectSelectize} class={commonStyles['combo-boxes']} current-value={initSubject} >
+            <fluent-combobox class={commonStyles['combo-boxes']} current-value={initSubject} >
                 <For each={subjects}>
                     {(subject) => {
                         const entityData = subject.Entity.Scheme + '/' + subject.Entity.CharData
@@ -28,7 +29,7 @@ const CatalogPage = () => {
                 </For>
             </fluent-combobox>
             <h2>Relationship Set</h2>
-            <fluent-combobox id={styles.relationshipSetSelectize} class={commonStyles['combo-boxes']} current-value={initRoleURI} >
+            <fluent-combobox class={commonStyles['combo-boxes']} current-value={initRoleURI}>
                 <For each={rsets}>
                     {(rset) => {
                         const roleURI = rset.RoleURI
@@ -38,7 +39,7 @@ const CatalogPage = () => {
                     }}
                 </For>
             </fluent-combobox>
-            <div>
+            <div id={styles['browse-btn-wrapper']}>
                 <fluent-button id='fetch-button' appearance='accent' onClick={
                     async e => {
                         const currSubject = subject()
@@ -62,6 +63,7 @@ const CatalogPage = () => {
                     store.showFactExpressionViewer()
                 }}>View Inline XBRL</a></p>
             }
+        </div>
         </div>
     )
 }

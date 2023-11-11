@@ -2,7 +2,18 @@
     font-family: 'GelasioRegular';
     font-size: 2em;
 }
+#selector-container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: auto;
+}
 #selector-panel{
     width:80%;
     margin:0 auto;
+}
+#browse-btn-wrapper{
+    margin:1em 0;
 }

@@ -7,7 +7,8 @@ import {
     fluentTabPanel,
     fluentTabs,
     fluentButton,
-    fluentTextField
+    fluentTextField,
+    fluentListbox
 } from '@fluentui/web-components'
 import 'isomorphic-fetch'
 
@@ -21,6 +22,7 @@ import styles from './App.module.css'
 provideFluentDesignSystem().register(
     fluentCombobox(),
     fluentOption(),
+    fluentListbox(),
     fluentTab(),
     fluentTabPanel(),
     fluentTabs(),
