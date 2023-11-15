@@ -21,7 +21,7 @@ export default (data, numFrozenRows, numFrozenCols, mount, onContextMenu, footno
         grid.style.width = '98vw'
         grid.data = data
         grid.frozenColumn = numFrozenCols || 1
-        grid.frozenRow = numFrozenRows
+        grid.frozenRow = (Math.floor(grid.visibleRowHeights.length/2) < numFrozenRows) ? 1 : numFrozenRows
         grid.addEventListener('afterrendercell', function (e) {
             if (!footnotes?.length) { 
                 return
