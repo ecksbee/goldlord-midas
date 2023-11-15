@@ -65,7 +65,8 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, iframeBody, 
     const labelRole = store.getLabelRole()
     const lang = store.getLang()
     let datagrid = []
-    const period = expressable.Context.Period[lang]
+    let periodLang = lang === 'Truncated'? 'Unlabelled' : lang
+    const period = expressable.Context.Period[periodLang]
     datagrid.push([ '', period, ''])
     const vq = expressable.Context.VoidQuadrant
     const cmg = expressable.Context.ContextualMemberGrid
