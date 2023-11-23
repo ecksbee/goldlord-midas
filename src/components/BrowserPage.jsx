@@ -60,7 +60,7 @@ const BrowserPage = () => {
                     store.setRenderable(null)
                 }}>[X]</a></h1>
             </div>
-            <div id={styles['main-panel-body']}>
+            <div id={styles['main-panel-body']} title='Right-click on data-grid for more options'>
                 <fluent-tabs activeid={currentTab()}>
                     <fluent-tab id='presentation' onClick={e => setCurrentTab('presentation')}>
                         Presentation</fluent-tab>
