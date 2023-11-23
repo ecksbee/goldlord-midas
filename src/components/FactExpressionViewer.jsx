@@ -544,7 +544,7 @@ const FactExpressionViewer = () => {
             width: '600px',
             'min-width': '600px',
             height: '96vh',
-        }}>
+        }}  title='Right-click on data-grid for more options'>
             <div id={styles['title-container']}>
                 <h1>{title()}
                 &nbsp;&nbsp;
