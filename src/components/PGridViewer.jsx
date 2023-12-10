@@ -18,7 +18,7 @@ const PGridViewer = ({labelRole, lang}) => {
                         const c = e.cell.columnIndex - 1
                         if (r > -1 && c > -1) {
                             const fact = pGrid.FactualQuadrant[r][c]
-                            if (fact?.[lang].InnerHtml) {
+                            if (fact?.[lang]?.InnerHtml || fact?.Unlabelled.InnerHtml) {
                                 e.items.push({
                                     title: 'Show Narrative',
                                     click: () => {
