@@ -98,7 +98,7 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, iframeBody, 
                         vtext = vcell.Dimension.Label.Default.Unlabelled
                     }
                 }
-                const memberCell = cmg[0][i]
+                const memberCell = cmg[i][0]??{}
                 if (memberCell.TypedMember) {
                     cmtext = memberCell.TypedMember
                 } else if (memberCell.ExplicitMember) {
