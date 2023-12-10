@@ -29,7 +29,7 @@ const CGridViewer = ({labelRole, lang}) => {
                         const c = e.cell.columnIndex - 2
                         if (r > -1 && c > -1) {
                             const fact = summationItem.FactualQuadrant[r][c]
-                            if (fact?.[lang].InnerHtml) {
+                            if (fact?.[lang].InnerHtml || fact?.Unlabelled.InnerHtml) {
                                 e.items.push({
                                     title: 'Show Narrative',
                                     click: () => {
