@@ -140,17 +140,22 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, iframeBody, 
         factvalue = ''
     }
     datagrid.push([concept, factvalue, ''])
+    const factValueX = datagrid.length - 1
+    const factValueY = datagrid[factValueX].length - 1
     theCanvasGrid.data = datagrid
     theCanvasGrid.removeEventListener()
     theCanvasGrid.addEventListener('afterrendercell', function (e) {
-        let superscripts = expressable.Footnotes.map((_, i) => i.toString())
+        if (factValueX != e.cell.rowIndex || (factValueY - 1)!= e.cell.columnIndex) {
+            return
+        }
+        let superscripts = expressable.Footnotes.map((_, i) => (i + 1).toString())
         const cell = e.cell.value
         if (!superscripts?.length) {
             return
         }
         let newInnerHtml = `<span style="font: 10.66px CarlitoRegular; padding: 0 2%;">${cell}</span><superscript style="vertical-align: super; font: 9px CarlitoRegular;">(`
         for (let k = 0; k < superscripts.length; k++) {
-            const superscript = superscripts[k] - 1
+            const superscript = superscripts[k]
             newInnerHtml += superscript
             if (k !== superscripts.length - 1) {
                 newInnerHtml += ', '
