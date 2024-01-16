@@ -80,10 +80,11 @@ const narrativeFactInnerHtml = () => {
         if (state.renderable) {
             const { rowIndex, columnIndex, linkbase } = state.narrativeFact
             const fact = state.renderable[linkbase].FactualQuadrant[rowIndex][columnIndex]
-            return fact?.[state.lang]?.InnerHtml || fact.Unlabelled.InnerHtml
+            return fact?.[state.lang]?.InnerHtml || fact?.Unlabelled.InnerHtml
         }
         if (state.expressable) {
-            return state.expressable.Expression?.[state.lang].InnerHtml
+            const expression = state.expressable.Expression
+            return expression?.[state.lang]?.InnerHtml || expression?.Unlabelled.InnerHtml
         }
     }
     return null
