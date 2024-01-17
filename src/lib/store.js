@@ -58,13 +58,6 @@ const setVisibleArcDiagram = (newVal) => {
     setState('visibleArcDiagram', () => !!newVal)
 }
 const showNarrativeFact = (r, c, q, i) => {
-    console.log("hello")
-    console.dir({
-        rowIndex: r,
-        columnIndex: c,
-        linkbase: q,
-        index: i,
-    })
     setState('narrativeFact', () => ({
         rowIndex: r,
         columnIndex: c,
@@ -193,10 +186,8 @@ const footnotesInnerHtml = () => {
     if (state.expressable) {
         let text = '<ul>'
         state.expressable.Footnotes.forEach(
-            (footnote, i) => {
-                if (superscripts.includes(i + 1)) {
-                    text += `<li>${footnote}</li>`
-                }
+            footnote => {
+                text += `<li>${footnote}</li>`
             }
         )
         text += '</ul>'
