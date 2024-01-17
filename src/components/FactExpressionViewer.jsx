@@ -150,11 +150,11 @@ function renderExpression(theCanvasGrid, viewerIframe, iframeBody, clearBtn) {
         if (factValueX != e.cell.rowIndex || (factValueY - 1)!= e.cell.columnIndex) {
             return
         }
-        let superscripts = myexpressable.Footnotes.map((_, i) => (i + 1).toString())
-        const cell = e.cell.value
+        let superscripts = myexpressable?.Footnotes?.map((_, i) => (i + 1).toString()) || []
         if (!superscripts?.length) {
             return
         }
+        const cell = e.cell.value
         let newInnerHtml = `<span style="font: 10.66px CarlitoRegular; padding: 0 2%;">${cell}</span><superscript style="vertical-align: super; font: 9px CarlitoRegular;">(`
         for (let k = 0; k < superscripts.length; k++) {
             const superscript = superscripts[k]
