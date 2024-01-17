@@ -61,7 +61,8 @@ const clearSelection = async (viewerIframe, iframeBody, clearBtn) => {
         contextref: ''
     }
 }
-function renderExpression(expressable, theCanvasGrid, viewerIframe, iframeBody, clearBtn) {
+function renderExpression(theCanvasGrid, viewerIframe, iframeBody, clearBtn) {
+    const expressable = store.getExpressable()
     const labelRole = store.getLabelRole()
     const lang = store.getLang()
     let datagrid = []
@@ -145,10 +146,11 @@ function renderExpression(expressable, theCanvasGrid, viewerIframe, iframeBody, 
     theCanvasGrid.data = datagrid
     theCanvasGrid.removeEventListener()
     theCanvasGrid.addEventListener('afterrendercell', function (e) {
+        const myexpressable = store.getExpressable()
         if (factValueX != e.cell.rowIndex || (factValueY - 1)!= e.cell.columnIndex) {
             return
         }
-        let superscripts = expressable.Footnotes.map((_, i) => (i + 1).toString())
+        let superscripts = myexpressable.Footnotes.map((_, i) => (i + 1).toString())
         const cell = e.cell.value
         if (!superscripts?.length) {
             return
@@ -384,12 +386,11 @@ const FactExpressionViewer = () => {
                         })
                         ev.stopPropagation()
                         await store.loadExpressable(name, contextref)
-                        const expressable = store.getExpressable()
                         focus = {
                             name,
                             contextref
                         }
-                        renderExpression(expressable, getGrid(), viewerIframe, iframeBody, clearBtn)
+                        renderExpression(getGrid(), viewerIframe, iframeBody, clearBtn)
                     })
                     allNonFractions.push(thisNode)
                     thisNode = nonFractions.iterateNext()
@@ -497,12 +498,11 @@ const FactExpressionViewer = () => {
                     }
                     ev.stopPropagation()
                     await store.loadExpressable(name, contextref)
-                    const expressable = store.getExpressable()
                     focus = {
                         name,
                         contextref
                     }
-                    renderExpression(expressable, getGrid(), viewerIframe, iframeBody, clearBtn)
+                    renderExpression(getGrid(), viewerIframe, iframeBody, clearBtn)
                 })
                 thisNode.classList.add('narrative')
                 const narrativeHighlight = viewerIframe.contentDocument.createElement('div')
