@@ -182,12 +182,6 @@ function renderExpression(theCanvasGrid, viewerIframe, iframeBody, clearBtn) {
                 })
             )
         }).flat()
-        if (labelActions?.length) {
-            e.items.push({
-                title: 'Label',
-                items: labelActions
-            })
-        }
         const scroll = {
             title: 'Scroll Into View',
             click: () => {
@@ -230,6 +224,18 @@ function renderExpression(theCanvasGrid, viewerIframe, iframeBody, clearBtn) {
             }
         }
         let i
+        if (labelActions?.length) {
+            i = e.items.findIndex(item => item.title == 'Label')
+            const labelMenuItem = {
+                title: 'Label',
+                items: labelActions
+            }
+            if (i>-1) {
+                e.items[i] = labelMenuItem
+            } else {
+                e.items.push(labelMenuItem)
+            }
+        }
         i = e.items.findIndex(item => item.title == 'Scroll Into View')
         if (i>-1) {
             e.items[i] = scroll
