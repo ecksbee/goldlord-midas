@@ -167,6 +167,27 @@ function renderExpression(theCanvasGrid, viewerIframe, iframeBody, clearBtn) {
         e.cell.innerHTML = newInnerHtml
     })
     theCanvasGrid.addEventListener('contextmenu', e => {
+        const labels = store.getExpressable()?.Labels
+        const labelActions = Object.keys(labels).map(labelRole => {
+            const labelRoleMap = labels[labelRole]
+            return Object.keys(labelRoleMap).map(
+                lang => ({
+                    title: `${labelRole} - ${lang}`,
+                    click: function () {
+                        store.setLabelRole(labelRole)
+                        store.setLang(lang)
+                        renderExpression(theCanvasGrid, viewerIframe, iframeBody, clearBtn)
+                        return;
+                    }
+                })
+            )
+        }).flat()
+        if (labelActions?.length) {
+            e.items.push({
+                title: 'Label',
+                items: labelActions
+            })
+        }
         const scroll = {
             title: 'Scroll Into View',
             click: () => {
