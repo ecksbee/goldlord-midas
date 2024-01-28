@@ -67,7 +67,7 @@ function renderExpression(theCanvasGrid, viewerIframe, iframeBody, clearBtn) {
     const lang = store.getLang()
     let datagrid = []
     let periodLang = lang === 'Truncated'? 'Unlabelled' : lang
-    const period = expressable.Context.Period[periodLang]
+    const period = expressable.Context.Period[periodLang] || expressable.Context.Period.Unlabelled
     datagrid.push([ '', period, ''])
     const vq = expressable.Context.VoidQuadrant
     const cmg = expressable.Context.ContextualMemberGrid
