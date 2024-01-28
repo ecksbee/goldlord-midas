@@ -127,7 +127,8 @@ const narrativeFactPeriodHeader = () => {
             return periodHeader
         }
         if (state.expressable) {
-            return state.expressable.Context.Period[state.lang]
+            const period = state.expressable.Context.Period
+            return period?.[state.lang] || period?.Unlabelled
         }
     }
     return null
