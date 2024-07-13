@@ -6,7 +6,7 @@ export default (rootDomain, labelRole, lang) => {
     ]
     primaryItems.push(...rootDomain.PrimaryItems)
     const maxRow =
-        rootDomain.PrimaryItems.length +
+        primaryItems.length +
         rootDomain.ContextualMemberGrid.length +
         1
     const maxCol = rootDomain.PeriodHeaders.length + 1

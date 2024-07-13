@@ -60,7 +60,7 @@ const DGridViewer = ({labelRole, lang}) => {
                     e.items.push({
                         title: item.Href,
                         click: () => {
-                            const blob = transformRootDomain(item)
+                            const blob = transformRootDomain(item, labelRole, lang)
                             grid.data = blob.grid
                             grid.frozenRow = blob.numFrozenRows
                             grid.draw()
