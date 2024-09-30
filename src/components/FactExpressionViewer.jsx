@@ -55,6 +55,8 @@ const clearSelection = async (viewerIframe, iframeBody, clearBtn) => {
         }
     })
     store.setExpressable(null)
+    store.setLabelRole('Default')
+    store.setLang('Truncated')
     iframeBody.removeChild(clearBtn)
     focus = {
         name: '',
@@ -417,6 +419,8 @@ const FactExpressionViewer = () => {
                             name,
                             contextref
                         }
+                        store.setLabelRole('Default')
+                        store.setLang('Truncated')
                         renderExpression(getGrid(), viewerIframe, iframeBody, clearBtn)
                     })
                     allNonFractions.push(thisNode)
@@ -529,6 +533,8 @@ const FactExpressionViewer = () => {
                         name,
                         contextref
                     }
+                    store.setLabelRole('Default')
+                    store.setLang('Truncated')
                     renderExpression(getGrid(), viewerIframe, iframeBody, clearBtn)
                 })
                 thisNode.classList.add('narrative')
